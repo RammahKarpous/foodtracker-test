@@ -26,6 +26,7 @@ class Login extends Component
         $validated = $this->validate();
         
         if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $this->remember)) {
+            // Regenerate session to prevent session fixation attacks
             request()->session()->regenerate();
             
             return redirect()->intended('/producten');
