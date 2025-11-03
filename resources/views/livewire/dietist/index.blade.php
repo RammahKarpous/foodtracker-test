@@ -1,25 +1,31 @@
-<div class="bg-black min-h-screen text-[#8e8e93] font-sans">
-    <div class="container max-w-full mx-auto">
-        <header class="bg-[rgba(28,28,30,0.8)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] p-5 border-b border-[rgba(139,101,60,0.3)] mb-0 text-center">
-            <h1 class="text-white text-2xl mb-5 font-semibold">KMD's foodtracker</h1>
-            <div class="dietist-tabs flex gap-2.5 justify-center mb-5 px-5 overflow-x-auto -webkit-overflow-scrolling-touch">
-                <button class="dietist-tab-btn active bg-[rgba(30,58,138,0.6)] text-white border border-[rgba(59,130,246,0.5)] px-5 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300" onclick="switchDietistTab('dagboek')">Dagboek</button>
-                <button class="dietist-tab-btn bg-[rgba(28,28,30,0.6)] text-[#8e8e93] border border-[rgba(139,101,60,0.3)] px-5 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300" onclick="switchDietistTab('overzicht')">Overzicht</button>
-                <button class="dietist-tab-btn bg-[rgba(28,28,30,0.6)] text-[#8e8e93] border border-[rgba(139,101,60,0.3)] px-5 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300" onclick="switchDietistTab('week')">Weekoverzicht</button>
-            </div>
-        </header>
+<div class="w-full">
+    <div class="flex gap-2 sm:gap-3 justify-center mb-6 flex-wrap">
+        <button class="dietist-tab-btn active bg-gradient-to-r from-[#000000] via-[#0A0E1F] to-[#102459] text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-300 whitespace-nowrap hover:brightness-110" onclick="switchDietistTab('dagboek')">Dagboek</button>
+        <button class="dietist-tab-btn bg-black bg-opacity-30 border border-white border-opacity-10 text-gray-300 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-300 whitespace-nowrap hover:bg-opacity-40" onclick="switchDietistTab('overzicht')">Overzicht</button>
+        <button class="dietist-tab-btn bg-black bg-opacity-30 border border-white border-opacity-10 text-gray-300 px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-300 whitespace-nowrap hover:bg-opacity-40" onclick="switchDietistTab('week')">Weekoverzicht</button>
+    </div>
 
         <!-- Dagboek Tab -->
         <div id="dietist-dagboek" class="dietist-tab-content block">
-            <div class="bg-[rgba(28,28,30,0.8)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] border-b border-[rgba(139,101,60,0.3)] py-4 px-5">
-                <div class="date-selector flex items-center justify-center gap-5 mb-5">
-                    <button wire:click="changeDay(-1)" class="date-nav-btn bg-transparent text-[#4c7fba] border-none py-1.5 px-4 text-4xl cursor-pointer transition-all duration-200 font-light leading-none">‹</button>
-                    <div class="date-display text-[#8e8e93] text-base font-normal text-center min-w-[250px]">{{ $this->formatDate($selectedDate) }}</div>
-                    <button wire:click="changeDay(1)" class="date-nav-btn bg-transparent text-[#4c7fba] border-none py-1.5 px-4 text-4xl cursor-pointer transition-all duration-200 font-light leading-none">›</button>
-                </div>
+            <div class="flex items-center justify-center gap-4 mb-6">
+                <button 
+                    wire:click="changeDay(-1)" 
+                    class="bg-transparent border-none text-blue-600 text-3xl cursor-pointer"
+                    title="Vorige dag"
+                >
+                    &#8592;
+                </button>
+                <span class="text-lg text-gray-400 font-semibold">{{ $this->formatDate($selectedDate) }}</span>
+                <button 
+                    wire:click="changeDay(1)" 
+                    class="bg-transparent border-none text-blue-600 text-3xl cursor-pointer"
+                    title="Volgende dag"
+                >
+                    &#8594;
+                </button>
             </div>
 
-            <div class="categories-grid flex flex-nowrap gap-4 mb-5 p-4 bg-black overflow-x-auto -webkit-overflow-scrolling-touch snap-x snap-proximity md:grid md:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] md:flex-wrap">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
                 @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
                     @php
                         $current = $this->dailyData[$key] ?? 0;
@@ -27,131 +33,150 @@
                         $percentage = ($current / $goal['max'] * 100);
                         $color = $percentage <= 100 ? 'green' : ($percentage <= 110 ? 'orange' : 'red');
                     @endphp
-                    <div class="category-card {{ $color }} bg-[rgba(28,28,30,0.7)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] p-5 rounded-2xl border border-[rgba(139,101,60,0.4)] transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex-none min-w-[280px] snap-start md:min-w-0 md:flex-auto hover:bg-[rgba(28,28,30,0.85)] hover:border-[rgba(139,101,60,0.6)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(139,101,60,0.2)]">
-                        <h3 class="text-base mb-4 text-white text-center font-medium">{{ $goal['name'] }}</h3>
+                    <div class="category-card bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg p-5 transition-all duration-300 hover:bg-opacity-40">
+                        <h3 class="text-base mb-4 text-gray-300 text-center font-medium">{{ $goal['name'] }}</h3>
                         <div class="category-chart w-[140px] h-[140px] mx-auto mb-4">
                             <canvas id="dietist-chart-{{ $key }}"></canvas>
                         </div>
                         <div class="category-info flex flex-col gap-2 text-sm">
                             <div class="info-row flex justify-between">
-                                <span class="info-label text-[#8e8e93] font-normal">Gegeten:</span>
-                                <span class="info-value font-medium text-white">{{ number_format($current, 0) }}{{ $goal['unit'] }}</span>
+                                <span class="info-label text-gray-400 font-normal">Gegeten:</span>
+                                <span class="info-value font-medium text-gray-300">{{ number_format($current, 0) }}{{ $goal['unit'] }}</span>
                             </div>
                             <div class="info-row flex justify-between">
-                                <span class="info-label text-[#8e8e93] font-normal">Maximaal:</span>
-                                <span class="info-value font-medium text-white">{{ $goal['max'] }}{{ $goal['unit'] }}</span>
+                                <span class="info-label text-gray-400 font-normal">Maximaal:</span>
+                                <span class="info-value font-medium text-gray-300">{{ $goal['max'] }}{{ $goal['unit'] }}</span>
                             </div>
                             <div class="info-row flex justify-between">
-                                <span class="info-label text-[#8e8e93] font-normal">Resterend:</span>
-                                <span class="info-value font-medium text-white">{{ number_format($remaining, 0) }}{{ $goal['unit'] }}</span>
+                                <span class="info-label text-gray-400 font-normal">Resterend:</span>
+                                <span class="info-value font-medium text-gray-300">{{ number_format($remaining, 0) }}{{ $goal['unit'] }}</span>
                             </div>
                             <div class="info-row flex justify-between">
-                                <span class="info-label text-[#8e8e93] font-normal">Percentage:</span>
-                                <span class="info-value font-medium text-white">{{ number_format($percentage, 1) }}%</span>
+                                <span class="info-label text-gray-400 font-normal">Percentage:</span>
+                                <span class="info-value font-medium text-gray-300">{{ number_format($percentage, 1) }}%</span>
                             </div>
                         </div>
                         @if($percentage > 110)
-                            <div class="warning red mt-2.5 px-3 py-2 rounded-md text-xs font-normal backdrop-blur-[10px] -webkit-backdrop-blur-[10px] bg-[rgba(231,76,60,0.2)] text-[#e74c3c] border border-[rgba(231,76,60,0.4)]">⚠️ Je hebt je limiet overschreden!</div>
+                            <div class="warning red mt-3 px-3 py-2 rounded-md text-xs font-normal bg-red-600 bg-opacity-30 border border-red-500 border-opacity-50 text-red-200">⚠️ Je hebt je limiet overschreden!</div>
                         @elseif($percentage > 100)
-                            <div class="warning orange mt-2.5 px-3 py-2 rounded-md text-xs font-normal backdrop-blur-[10px] -webkit-backdrop-blur-[10px] bg-[rgba(243,156,18,0.2)] text-[#f39c12] border border-[rgba(243,156,18,0.4)]">⚠️ Let op: je nadert je limiet</div>
+                            <div class="warning orange mt-3 px-3 py-2 rounded-md text-xs font-normal bg-yellow-600 bg-opacity-30 border border-yellow-500 border-opacity-50 text-yellow-200">⚠️ Let op: je nadert je limiet</div>
                         @endif
                     </div>
                 @endforeach
             </div>
             
-            <div class="history-section bg-[rgba(28,28,30,0.8)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] p-6 border-t border-[rgba(139,101,60,0.3)] mt-5">
-                <h2 class="text-white text-lg font-medium mb-5">Geschiedenis - Toegevoegde Producten</h2>
-                <div id="dietist-historyContent">
-                    @php $hasHistory = false; @endphp
-                    @foreach($this->dailyData as $key => $value)
-                        @if(str_ends_with($key, '_history') && count($value) > 0)
-                            @php
-                                $hasHistory = true;
-                                $categoryKey = str_replace('_history', '', $key);
-                                $goal = \App\Livewire\Dietist\Index::GOALS[$categoryKey] ?? null;
-                                if (!$goal) continue;
-                            @endphp
-                            <div class="history-category mb-6 bg-[rgba(28,28,30,0.6)] backdrop-blur-[10px] -webkit-backdrop-blur-[10px] p-4 rounded-xl border border-[rgba(139,101,60,0.3)]">
-                                <h3 class="text-white text-base font-medium mb-3 pb-2 border-b border-[rgba(139,101,60,0.2)]">{{ $goal['name'] }}</h3>
-                                <div class="history-list flex flex-col gap-2">
-                                    @foreach($value as $item)
-                                        <div class="history-item flex justify-between items-center py-2.5 px-3 bg-[rgba(0,0,0,0.3)] rounded-lg border-l-4 border-[rgba(139,101,60,0.5)] transition-all duration-200 hover:bg-[rgba(0,0,0,0.5)] hover:border-[rgba(139,101,60,0.8)]">
-                                            <span class="history-item-name text-white font-normal flex-1">{{ $item['name'] }}</span>
-                                            <span class="history-item-grams text-[#4c7fba] font-medium ml-4">{{ number_format($item['grams'], 0) }}{{ $goal['unit'] }}</span>
-                                        </div>
-                                    @endforeach
-                                </div>
+            <h2 class="text-gray-400 text-xl mb-4">Geschiedenis - Toegevoegde Producten</h2>
+            <div id="dietist-historyContent">
+                @php $hasHistory = false; @endphp
+                @foreach($this->dailyData as $key => $value)
+                    @if(str_ends_with($key, '_history') && count($value) > 0)
+                        @php
+                            $hasHistory = true;
+                            $categoryKey = str_replace('_history', '', $key);
+                            $goal = \App\Livewire\Dietist\Index::GOALS[$categoryKey] ?? null;
+                            if (!$goal) continue;
+                        @endphp
+                        <div class="mb-6 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg p-4">
+                            <h3 class="text-gray-300 text-base font-medium mb-3 pb-2 border-b border-white border-opacity-10">{{ $goal['name'] }}</h3>
+                            <div class="flex flex-col gap-2">
+                                @foreach($value as $item)
+                                    <div class="flex justify-between items-center py-2 px-3 bg-black bg-opacity-20 rounded-lg transition-all duration-200 hover:bg-opacity-30">
+                                        <span class="text-gray-300 text-sm font-normal flex-1 truncate">{{ $item['name'] }}</span>
+                                        <span class="text-blue-600 text-sm font-medium ml-4 whitespace-nowrap">{{ number_format($item['grams'], 0) }}{{ $goal['unit'] }}</span>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endif
-                    @endforeach
-                    @if(!$hasHistory)
-                        <div class="history-empty text-[#8e8e93] italic py-5 text-center">Nog geen producten toegevoegd voor deze datum.</div>
+                        </div>
                     @endif
-                </div>
+                @endforeach
+                @if(!$hasHistory)
+                    <div class="text-gray-400 italic py-5 text-center">Nog geen producten toegevoegd voor deze datum.</div>
+                @endif
             </div>
         </div>
 
         <!-- Overzicht Tab -->
         <div id="dietist-overzicht" class="dietist-tab-content hidden">
-            <div class="chart-section bg-[rgba(28,28,30,0.8)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] p-6 rounded-none border-t border-[rgba(139,101,60,0.3)]">
-                <h2 class="mb-5 text-white text-center text-lg font-medium">Dagelijks Overzicht - Tabel</h2>
-                <div class="bg-[rgba(28,28,30,0.8)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] border-b border-[rgba(139,101,60,0.3)] py-4 px-5 mb-5">
-                    <div class="date-selector flex items-center justify-center gap-5 mb-5">
-                        <button wire:click="changeOverviewDay(-1)" class="date-nav-btn bg-transparent text-[#4c7fba] border-none py-1.5 px-4 text-4xl cursor-pointer transition-all duration-200 font-light leading-none">‹</button>
-                        <div class="date-display text-[#8e8e93] text-base font-normal text-center min-w-[250px]">{{ $this->formatDate($overviewDate) }}</div>
-                        <button wire:click="changeOverviewDay(1)" class="date-nav-btn bg-transparent text-[#4c7fba] border-none py-1.5 px-4 text-4xl cursor-pointer transition-all duration-200 font-light leading-none">›</button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto -webkit-overflow-scrolling-touch mb-8">
-                    <table class="w-full border-collapse min-w-[600px]">
-                        <thead>
-                            <tr>
-                                <th class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-[#8e8e93] font-medium text-sm">Categorie</th>
-                                <th class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-[#8e8e93] font-medium text-sm">Gegeten</th>
-                                <th class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-[#8e8e93] font-medium text-sm">Doel</th>
-                                <th class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-[#8e8e93] font-medium text-sm">Voortgang</th>
+            <div class="flex items-center justify-center gap-4 mb-6">
+                <button 
+                    wire:click="changeOverviewDay(-1)" 
+                    class="bg-transparent border-none text-blue-600 text-3xl cursor-pointer"
+                    title="Vorige dag"
+                >
+                    &#8592;
+                </button>
+                <span class="text-lg text-gray-400 font-semibold">{{ $this->formatDate($overviewDate) }}</span>
+                <button 
+                    wire:click="changeOverviewDay(1)" 
+                    class="bg-transparent border-none text-blue-600 text-3xl cursor-pointer"
+                    title="Volgende dag"
+                >
+                    &#8594;
+                </button>
+            </div>
+            
+            <h2 class="text-gray-400 text-xl mb-4">Dagelijks Overzicht - Tabel</h2>
+            <div class="w-full overflow-x-auto mb-6">
+                <table class="w-full border-collapse border-spacing-0 bg-transparent">
+                    <thead>
+                        <tr>
+                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Categorie</th>
+                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Gegeten</th>
+                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Doel</th>
+                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Voortgang</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
+                            @php
+                                $current = $this->overviewData[$key] ?? 0;
+                                $percentage = ($current / $goal['max'] * 100);
+                                $progressClass = $percentage > 110 ? 'danger' : ($percentage > 100 ? 'warning' : '');
+                                $progressColor = $progressClass === 'danger' ? '#e74c3c' : ($progressClass === 'warning' ? '#f39c12' : '#3b82f6');
+                            @endphp
+                            <tr class="border-b border-white border-opacity-8">
+                                <td class="px-2 py-2 text-gray-300 text-xs">{{ $goal['name'] }}</td>
+                                <td class="px-2 py-2 text-gray-300 text-xs">{{ number_format($current, 0) }}{{ $goal['unit'] }}</td>
+                                <td class="px-2 py-2 text-gray-300 text-xs">{{ $goal['max'] }}{{ $goal['unit'] }}</td>
+                                <td class="px-2 py-2 text-xs">
+                                    <div class="text-gray-300">{{ number_format($percentage, 1) }}%</div>
+                                    <div class="progress-bar w-full h-2 bg-black bg-opacity-30 rounded-lg overflow-hidden mt-1.5">
+                                        <div class="progress-fill h-full rounded-lg transition-all duration-300" style="background: {{ $progressColor }}; width: {{ min($percentage, 100) }}%;"></div>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
-                                @php
-                                    $current = $this->overviewData[$key] ?? 0;
-                                    $percentage = ($current / $goal['max'] * 100);
-                                    $progressClass = $percentage > 110 ? 'danger' : ($percentage > 100 ? 'warning' : '');
-                                    $progressColor = $progressClass === 'danger' ? '#e74c3c' : ($progressClass === 'warning' ? '#f39c12' : '#4c7fba');
-                                @endphp
-                                <tr>
-                                    <td class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-white text-sm">{{ $goal['name'] }}</td>
-                                    <td class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-white text-sm">{{ number_format($current, 0) }}{{ $goal['unit'] }}</td>
-                                    <td class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-white text-sm">{{ $goal['max'] }}{{ $goal['unit'] }}</td>
-                                    <td class="p-3 text-left border-b border-[rgba(139,101,60,0.2)] text-white text-sm">
-                                        <div>{{ number_format($percentage, 1) }}%</div>
-                                        <div class="progress-bar w-full h-2 bg-[#2c2c2e] rounded-[10px] overflow-hidden mt-1.5">
-                                            <div class="progress-fill {{ $progressClass }} h-full rounded-[10px] transition-all duration-300" style="background: {{ $progressColor }}; width: {{ min($percentage, 100) }}%;"></div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-                <h2 class="mb-5 text-white text-center text-lg font-medium">Dagelijks Overzicht - Grafiek</h2>
-                <div class="chart-container relative h-[400px] flex justify-center items-center">
-                    <canvas id="dietist-nutritionChart"></canvas>
-                </div>
+            <h2 class="text-gray-400 text-xl mb-4">Dagelijks Overzicht - Grafiek</h2>
+            <div class="chart-container relative h-[400px] flex justify-center items-center mb-6">
+                <canvas id="dietist-nutritionChart"></canvas>
             </div>
         </div>
 
         <!-- Week Tab -->
         <div id="dietist-week" class="dietist-tab-content hidden">
-            <div class="chart-section bg-[rgba(28,28,30,0.8)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] p-6 rounded-none border-t border-[rgba(139,101,60,0.3)]">
-                <h2 class="mb-5 text-white text-center text-lg font-medium">Weekoverzicht (Ma - Vr)</h2>
-                <div class="date-selector flex items-center justify-center gap-5 mb-6">
-                    <button wire:click="changeWeek(-1)" class="date-nav-btn bg-transparent text-[#4c7fba] border-none py-1.5 px-4 text-4xl cursor-pointer transition-all duration-200 font-light leading-none">‹</button>
-                    <div class="date-display text-[#8e8e93] text-base font-normal text-center min-w-[250px]" id="dietist-weekDisplay">{{ $this->formatWeekDisplay() }}</div>
-                    <button wire:click="changeWeek(1)" class="date-nav-btn bg-transparent text-[#4c7fba] border-none py-1.5 px-4 text-4xl cursor-pointer transition-all duration-200 font-light leading-none">›</button>
-                </div>
+            <div class="flex items-center justify-center gap-4 mb-6">
+                <button 
+                    wire:click="changeWeek(-1)" 
+                    class="bg-transparent border-none text-blue-600 text-3xl cursor-pointer"
+                    title="Vorige week"
+                >
+                    &#8592;
+                </button>
+                <span class="text-lg text-gray-400 font-semibold" id="dietist-weekDisplay">{{ $this->formatWeekDisplay() }}</span>
+                <button 
+                    wire:click="changeWeek(1)" 
+                    class="bg-transparent border-none text-blue-600 text-3xl cursor-pointer"
+                    title="Volgende week"
+                >
+                    &#8594;
+                </button>
+            </div>
+            
+            <h2 class="text-gray-400 text-xl mb-4">Weekoverzicht (Ma - Vr)</h2>
                 @php
                     $redMeatTotal = $this->weeklyRedMeatTotal;
                     $redMeatPercentage = ($redMeatTotal / \App\Livewire\Dietist\Index::RED_MEAT_WEEKLY_LIMIT * 100);
@@ -159,48 +184,46 @@
                     $redMeatValueColor = $redMeatClass === 'danger' ? '#e74c3c' : ($redMeatClass === 'warning' ? '#f39c12' : '#ffffff');
                     $redMeatProgressColor = $redMeatClass === 'danger' ? '#e74c3c' : ($redMeatClass === 'warning' ? '#f39c12' : '#4c7fba');
                 @endphp
-                <div class="red-meat-info {{ $redMeatClass }} bg-[rgba(28,28,30,0.6)] backdrop-blur-[10px] -webkit-backdrop-blur-[10px] py-4 px-5 rounded-xl border border-[rgba(139,101,60,0.3)] mb-6 text-center">
-                    <h3 class="text-white text-base font-medium mb-2.5">Rood Vlees - Weeklimiet</h3>
-                    <div class="red-meat-stats flex justify-between items-center text-[#8e8e93] text-sm">
-                        <span>Gegeten:</span>
-                        <span class="red-meat-value font-medium" style="color: {{ $redMeatValueColor }};">{{ number_format($redMeatTotal, 0) }}g / {{ \App\Livewire\Dietist\Index::RED_MEAT_WEEKLY_LIMIT }}g</span>
-                    </div>
-                    <div class="red-meat-progress w-full h-2 bg-[#2c2c2e] rounded-[10px] overflow-hidden mt-2.5">
-                        <div class="red-meat-progress-fill {{ $redMeatClass }} h-full rounded-[10px] transition-all duration-300" style="background: {{ $redMeatProgressColor }}; width: {{ min($redMeatPercentage, 100) }}%;"></div>
-                    </div>
+            <div class="bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg py-4 px-5 mb-6 text-center">
+                <h3 class="text-gray-300 text-base font-medium mb-2.5">Rood Vlees - Weeklimiet</h3>
+                <div class="red-meat-stats flex justify-between items-center text-gray-400 text-sm">
+                    <span>Gegeten:</span>
+                    <span class="red-meat-value font-medium" style="color: {{ $redMeatValueColor }};">{{ number_format($redMeatTotal, 0) }}g / {{ \App\Livewire\Dietist\Index::RED_MEAT_WEEKLY_LIMIT }}g</span>
                 </div>
-                <div class="week-grid grid grid-cols-1 md:grid-cols-5 gap-4 p-4 overflow-x-auto -webkit-overflow-scrolling-touch">
+                <div class="red-meat-progress w-full h-2 bg-black bg-opacity-30 rounded-lg overflow-hidden mt-2.5">
+                    <div class="red-meat-progress-fill h-full rounded-lg transition-all duration-300" style="background: {{ $redMeatProgressColor }}; width: {{ min($redMeatPercentage, 100) }}%;"></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                @php
+                    $monday = \Carbon\Carbon::parse($currentWeekMonday);
+                    $dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'];
+                @endphp
+                @for($i = 0; $i < 5; $i++)
                     @php
-                        $monday = \Carbon\Carbon::parse($currentWeekMonday);
-                        $dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'];
+                        $date = $monday->copy()->addDays($i);
+                        $dateString = $date->format('Y-m-d');
+                        $dayData = $this->weekData[$dateString] ?? [];
                     @endphp
-                    @for($i = 0; $i < 5; $i++)
-                        @php
-                            $date = $monday->copy()->addDays($i);
-                            $dateString = $date->format('Y-m-d');
-                            $dayData = $this->weekData[$dateString] ?? [];
-                        @endphp
-                        <div class="day-card bg-[rgba(28,28,30,0.7)] backdrop-blur-[20px] -webkit-backdrop-blur-[20px] p-4 rounded-xl border border-[rgba(139,101,60,0.4)] text-center min-w-[200px]">
-                            <h3 class="text-white text-base mb-2.5 font-medium">{{ $dayNames[$i] }}</h3>
-                            <div class="day-date text-[#8e8e93] text-xs mb-2.5">{{ $date->day }}/{{ $date->month }}</div>
-                            <div class="day-summary flex flex-col gap-1 text-xs">
+                    <div class="day-card bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg p-4 text-center">
+                        <h3 class="text-gray-300 text-base mb-2.5 font-medium">{{ $dayNames[$i] }}</h3>
+                        <div class="day-date text-gray-400 text-xs mb-2.5">{{ $date->day }}/{{ $date->month }}</div>
+                        <div class="day-summary flex flex-col gap-1 text-xs">
                                 @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
                                     @php
                                         $current = $dayData[$key] ?? 0;
                                         $percentage = ($current / $goal['max'] * 100);
                                     @endphp
-                                    <div class="day-summary-item flex justify-between text-[#8e8e93]">
+                                    <div class="day-summary-item flex justify-between text-gray-400">
                                         <span>{{ $goal['name'] }}:</span>
-                                        <span class="day-summary-value text-white">{{ number_format($percentage, 0) }}%</span>
+                                        <span class="day-summary-value text-gray-300">{{ number_format($percentage, 0) }}%</span>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
                     @endfor
-                </div>
             </div>
         </div>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -227,8 +250,8 @@
         });
         document.querySelectorAll('.dietist-tab-btn').forEach(btn => {
             btn.classList.remove('active');
-            btn.classList.remove('bg-[rgba(30,58,138,0.6)]', 'text-white', 'border-[rgba(59,130,246,0.5)]');
-            btn.classList.add('bg-[rgba(28,28,30,0.6)]', 'text-[#8e8e93]', 'border-[rgba(139,101,60,0.3)]');
+            btn.classList.remove('bg-gradient-to-r', 'from-[#000000]', 'via-[#0A0E1F]', 'to-[#102459]', 'text-white');
+            btn.classList.add('bg-black', 'bg-opacity-30', 'border', 'border-white', 'border-opacity-10', 'text-gray-300');
         });
         
         const targetTab = document.getElementById('dietist-' + tabName);
@@ -238,8 +261,8 @@
         }
         
         event.target.classList.add('active');
-        event.target.classList.remove('bg-[rgba(28,28,30,0.6)]', 'text-[#8e8e93]', 'border-[rgba(139,101,60,0.3)]');
-        event.target.classList.add('bg-[rgba(30,58,138,0.6)]', 'text-white', 'border-[rgba(59,130,246,0.5)]');
+        event.target.classList.remove('bg-black', 'bg-opacity-30', 'border', 'border-white', 'border-opacity-10', 'text-gray-300');
+        event.target.classList.add('bg-gradient-to-r', 'from-[#000000]', 'via-[#0A0E1F]', 'to-[#102459]', 'text-white');
 
         if (tabName === 'overzicht') {
             setTimeout(() => {

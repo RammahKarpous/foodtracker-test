@@ -68,30 +68,30 @@
             </button>
         </form>
     </div>
-    <nav class="flex justify-center gap-2 my-5">
+    <nav class="flex justify-center overflow-x-auto gap-2 my-5">
         <a 
             href="{{ route('products') }}"
-            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('products') ? 'active' : '' }}">
+            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('products') ? 'active' : '' }}">
             Producten
         </a>
         <a 
             href="{{ route('diary') }}"
-            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('diary') ? 'active' : '' }}">
+            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('diary') ? 'active' : '' }}">
             Dagboek
         </a>
         <a 
             href="{{ route('overview') }}"
-            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('overview') ? 'active' : '' }}">
+            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('overview') ? 'active' : '' }}">
             Overzicht
         </a>
         <a 
             href="{{ route('nutrition-limits') }}"
-            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('nutrition-limits') ? 'active' : '' }}">
+            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('nutrition-limits') ? 'active' : '' }}">
             Wijzig nutrition limieten
         </a>
         <a 
             href="{{ route('dietist') }}"
-            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('dietist') ? 'active' : '' }}">
+            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('dietist') ? 'active' : '' }}">
             Dietist
         </a>
     </nav>
