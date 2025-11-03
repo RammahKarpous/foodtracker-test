@@ -25,27 +25,7 @@
     
     <h2 class="text-gray-400 text-xl mb-6">Wat heb je vandaag gegeten?</h2>
     
-    <form wire:submit.prevent="save" class="w-full flex flex-col gap-2 mb-6">
-        <select 
-            wire:model="category" 
-            id="diary-category"
-            onchange="toggleDiaryRedMeatCheckbox()"
-            class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
-            required
-        >
-            <option value="">-- Selecteer Categorie --</option>
-            <option value="groente">Groente</option>
-            <option value="fruit">Fruit</option>
-            <option value="koolhydraten">Koolhydraten</option>
-            <option value="vlees">Vlees</option>
-            <option value="noten">Noten</option>
-            <option value="zuivel">Zuivel</option>
-            <option value="kaas">Kaas</option>
-            <option value="vet">Vet</option>
-            <option value="vocht">Vocht</option>
-        </select>
-        @error('category') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-        
+    <form wire:submit.prevent="save" class="w-full flex flex-col gap-2 mb-6">  
         <select 
             wire:model="moment" 
             class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
@@ -82,6 +62,26 @@
             class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
             required
         >
+        
+        <select 
+            wire:model="category" 
+            id="diary-category"
+            onchange="toggleDiaryRedMeatCheckbox()"
+            class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+            required
+        >
+            <option value="">-- Selecteer Categorie --</option>
+            <option value="groente">Groente</option>
+            <option value="fruit">Fruit</option>
+            <option value="koolhydraten">Koolhydraten</option>
+            <option value="vlees">Vlees</option>
+            <option value="noten">Noten</option>
+            <option value="zuivel">Zuivel</option>
+            <option value="kaas">Kaas</option>
+            <option value="vet">Vet</option>
+            <option value="vocht">Vocht</option>
+        </select>
+        @error('category') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         
         <div class="hidden mb-2" id="diary-redMeatGroup">
             <label class="flex items-center gap-2.5 cursor-pointer text-gray-300 text-sm">
