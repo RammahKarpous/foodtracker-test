@@ -16,6 +16,15 @@ class Index extends Component
     public $suiker = '';
     public $eiwit = '';
     public $search = '';
+    
+    // Edit form fields
+    public $editNaam = '';
+    public $editKcal = '';
+    public $editVet = '';
+    public $editVerzadigd = '';
+    public $editKoolhydraten = '';
+    public $editSuiker = '';
+    public $editEiwit = '';
     public $editingId = null;
 
     protected function rules()
@@ -46,7 +55,7 @@ class Index extends Component
     {
         $this->validate();
         
-        $data = [
+        Product::create([
             'user_id' => Auth::id(),
             'naam' => $this->naam,
             'kcal' => floatval(str_replace(',', '.', $this->kcal)),
@@ -55,15 +64,12 @@ class Index extends Component
             'koolhydraten' => floatval(str_replace(',', '.', $this->koolhydraten)),
             'suiker' => floatval(str_replace(',', '.', $this->suiker)),
             'eiwit' => floatval(str_replace(',', '.', $this->eiwit)),
-        ];
+        ]);
         
-        if ($this->editingId) {
-            Product::where('id', $this->editingId)->update($data);
-        } else {
-            Product::create($data);
-        }
+        session()->flash('message', 'Product is toegevoegd');
         
-        $this->reset('naam', 'kcal', 'vet', 'verzadigd', 'koolhydraten', 'suiker', 'eiwit', 'editingId');
+        $this->reset('naam', 'kcal', 'vet', 'verzadigd', 'koolhydraten', 'suiker', 'eiwit');
+        $this->dispatch('product-added');
     }
 
     public function edit($id)
@@ -71,14 +77,45 @@ class Index extends Component
         $product = Product::where('id', $id)->where('user_id', Auth::id())->first();
         if ($product) {
             $this->editingId = $id;
-            $this->naam = $product->naam;
-            $this->kcal = $product->kcal;
-            $this->vet = $product->vet;
-            $this->verzadigd = $product->verzadigd;
-            $this->koolhydraten = $product->koolhydraten;
-            $this->suiker = $product->suiker;
-            $this->eiwit = $product->eiwit;
+            $this->editNaam = $product->naam;
+            $this->editKcal = number_format((float)$product->kcal, 2, '.', '');
+            $this->editVet = number_format((float)$product->vet, 2, '.', '');
+            $this->editVerzadigd = number_format((float)$product->verzadigd, 2, '.', '');
+            $this->editKoolhydraten = number_format((float)$product->koolhydraten, 2, '.', '');
+            $this->editSuiker = number_format((float)$product->suiker, 2, '.', '');
+            $this->editEiwit = number_format((float)$product->eiwit, 2, '.', '');
         }
+    }
+
+    public function update()
+    {
+        $this->validate([
+            'editNaam' => 'required|string',
+            'editKcal' => 'required|numeric',
+            'editVet' => 'required|numeric',
+            'editVerzadigd' => 'required|numeric',
+            'editKoolhydraten' => 'required|numeric',
+            'editSuiker' => 'required|numeric',
+            'editEiwit' => 'required|numeric',
+        ]);
+        
+        Product::where('id', $this->editingId)->update([
+            'naam' => $this->editNaam,
+            'kcal' => floatval(str_replace(',', '.', $this->editKcal)),
+            'vet' => floatval(str_replace(',', '.', $this->editVet)),
+            'verzadigd' => floatval(str_replace(',', '.', $this->editVerzadigd)),
+            'koolhydraten' => floatval(str_replace(',', '.', $this->editKoolhydraten)),
+            'suiker' => floatval(str_replace(',', '.', $this->editSuiker)),
+            'eiwit' => floatval(str_replace(',', '.', $this->editEiwit)),
+        ]);
+        
+        session()->flash('message', 'Product is bijgewerkt');
+        $this->reset('editNaam', 'editKcal', 'editVet', 'editVerzadigd', 'editKoolhydraten', 'editSuiker', 'editEiwit', 'editingId');
+    }
+
+    public function closeModal()
+    {
+        $this->reset('editNaam', 'editKcal', 'editVet', 'editVerzadigd', 'editKoolhydraten', 'editSuiker', 'editEiwit', 'editingId');
     }
 
     public function delete($id)

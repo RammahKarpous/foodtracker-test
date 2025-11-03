@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/dashboard',
+    'home' => '/producten',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,7 +144,7 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Features::registration(), // Disabled - no registration allowed
         Features::resetPasswords(),
     ],
 

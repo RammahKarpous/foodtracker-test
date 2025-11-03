@@ -1,7 +1,13 @@
 <div class="w-full">
+    @if (session()->has('message'))
+        <div class="mb-4 px-4 py-3 bg-green-600 bg-opacity-30 border border-green-500 border-opacity-50 rounded-lg text-green-200 text-center">
+            {{ session('message') }}
+        </div>
+    @endif
+    
     <h2 class="text-gray-400 text-xl mb-6">Voeg een product toe</h2>
     
-    <form wire:submit="save" class="w-full flex flex-col gap-2 mb-4">
+    <form wire:submit.prevent="save" class="w-full flex flex-col gap-2 mb-4">
         <input 
             wire:model="naam" 
             type="text" 
@@ -61,17 +67,24 @@
             type="submit" 
             class="w-full px-6 py-3 bg-gradient-to-r from-[#000000] via-[#0A0E1F] to-[#102459] text-white rounded-lg font-semibold hover:brightness-110 transition mt-2"
         >
-            {{ $editingId ? 'Bijwerken' : 'Toevoegen' }}
+            Toevoegen
         </button>
     </form>
     
     <div class="w-full overflow-x-auto mb-4">
         <input 
-            wire:model.live="search" 
+            wire:model.live.debounce.300ms="search" 
             type="text" 
             placeholder="Zoek product..." 
+            list="products-list"
+            autocomplete="off"
             class="w-full px-4 py-3 bg-gray-900 border border-white border-opacity-10 rounded-lg text-white placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
         >
+        <datalist id="products-list">
+            @foreach($this->products as $product)
+                <option value="{{ $product->naam }}">
+            @endforeach
+        </datalist>
     </div>
     
     <div class="w-full overflow-x-auto">
@@ -122,5 +135,91 @@
                 @endforeach
             </tbody>
         </table>
+        @if($this->products->isEmpty())
+            <p class="text-center text-gray-400 mt-4">Geen producten gevonden</p>
+        @endif
     </div>
+
+    <!-- Edit Modal -->
+    @if($editingId)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl p-8 shadow-xl max-w-md w-full mx-4">
+                <h2 class="text-2xl text-gray-400 mb-6 text-center">Product bewerken</h2>
+                
+                <form wire:submit.prevent="update" class="flex flex-col gap-2">
+                    <input 
+                        wire:model="editNaam" 
+                        type="text" 
+                        placeholder="Productnaam" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    <input 
+                        wire:model="editKcal" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Kcal/100g" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    <input 
+                        wire:model="editVet" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Vetten/100g (g)" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    <input 
+                        wire:model="editVerzadigd" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Verzadigd vet/100g (g)" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    <input 
+                        wire:model="editKoolhydraten" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Koolhydraten/100g (g)" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    <input 
+                        wire:model="editSuiker" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Suiker/100g (g)" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    <input 
+                        wire:model="editEiwit" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Eiwit/100g (g)" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    
+                    <div class="flex gap-2 mt-4">
+                        <button 
+                            type="submit" 
+                            class="flex-1 px-6 py-3 bg-gradient-to-r from-[#000000] via-[#0A0E1F] to-[#102459] text-white rounded-lg font-semibold hover:brightness-110 transition"
+                        >
+                            Bijwerken
+                        </button>
+                        <button 
+                            type="button" 
+                            wire:click="closeModal" 
+                            class="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:brightness-110 transition"
+                        >
+                            Annuleren
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </div>

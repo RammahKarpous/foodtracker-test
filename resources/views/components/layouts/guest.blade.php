@@ -6,14 +6,34 @@
     <title>{{ $title ?? 'KMD\'s foodtracker' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-</head>
-<body class="bg-gradient-radial from-[#0A0B0E] via-[#080A0F] to-[#06070B] min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl text-center text-white mb-8">KMD's foodtracker</h1>
+    <style>
+        body {
+            background: radial-gradient(ellipse 1200px 800px at 20% 0%, #0A0B0E 0%, #080A0F 40%, #06070B 100%);
+            min-height: 100vh;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
         
-        <div class="max-w-md mx-auto">
-            {{ $slot }}
-        </div>
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 1.4em;
+            margin: 18px 0 10px 0;
+        }
+        
+        @media (min-width: 700px) {
+            h1 {
+                font-size: 2em;
+                margin-top: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>KMD's foodtracker</h1>
+    <div class="w-full max-w-md mx-auto mt-8">
+        {{ $slot }}
     </div>
 
     @livewireScripts

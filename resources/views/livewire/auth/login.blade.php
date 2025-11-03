@@ -46,11 +46,5 @@
             Inloggen
         </button>
     </form>
-    
-    <div class="mt-6 text-center">
-        <a href="/register" class="text-blue-400 hover:text-blue-300">
-            Nog geen account? Registreer hier
-        </a>
-    </div>
 </div>
 

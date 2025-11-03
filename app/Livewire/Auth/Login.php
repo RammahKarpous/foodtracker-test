@@ -28,7 +28,7 @@ class Login extends Component
         if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']], $this->remember)) {
             request()->session()->regenerate();
             
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/producten');
         }
         
         $this->addError('email', 'De ingevoerde gegevens zijn onjuist.');

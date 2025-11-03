@@ -138,8 +138,10 @@ class Index extends Component
         
         if ($this->editingId) {
             DiaryEntry::where('id', $this->editingId)->update($data);
+            session()->flash('message', 'Entry is bijgewerkt');
         } else {
             DiaryEntry::create($data);
+            session()->flash('message', 'Toegevoegd aan dagboek');
         }
         
         $this->reset('moment', 'productNaam', 'gram', 'editingId');
@@ -152,7 +154,7 @@ class Index extends Component
             $this->editingId = $id;
             $this->moment = $entry->moment;
             $this->productNaam = $entry->product_naam;
-            $this->gram = $entry->gram;
+            $this->gram = number_format((float)$entry->gram, 2, '.', '');
         }
     }
 

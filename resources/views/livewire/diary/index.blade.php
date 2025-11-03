@@ -17,9 +17,15 @@
         </button>
     </div>
     
+    @if (session()->has('message'))
+        <div class="mb-4 px-4 py-3 bg-green-600 bg-opacity-30 border border-green-500 border-opacity-50 rounded-lg text-green-200 text-center">
+            {{ session('message') }}
+        </div>
+    @endif
+    
     <h2 class="text-gray-400 text-xl mb-6">Wat heb je vandaag gegeten?</h2>
     
-    <form wire:submit="save" class="w-full flex flex-col gap-2 mb-6">
+    <form wire:submit.prevent="save" class="w-full flex flex-col gap-2 mb-6">
         <select 
             wire:model="moment" 
             class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"

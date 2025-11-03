@@ -19,7 +19,7 @@
             text-align: center;
             color: #fff;
             font-size: 1.4em;
-            margin: 18px 0 10px 0;
+            margin: 0;
         }
         
         .tab-section {
@@ -38,7 +38,8 @@
             align-items: center;
         }
         
-        nav button.active {
+        nav button.active,
+        nav a.active {
             background: linear-gradient(90deg, #101425 0%, #122553 60%, #1C3F8B 100%) !important;
             box-shadow: 0 8px 24px rgba(16, 36, 89, 0.45);
         }
@@ -46,7 +47,6 @@
         @media (min-width: 700px) {
             h1 {
                 font-size: 2em;
-                margin-top: 32px;
             }
             
             .tab-section {
@@ -58,34 +58,37 @@
     </style>
 </head>
 <body>
-    <h1>KMD's foodtracker</h1>
-    <nav class="flex justify-center gap-2 my-5">
-        <button 
-            class="tab-btn px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 border border-white/8"
-            data-tab="producten">
-            Producten
-        </button>
-        <button 
-            class="tab-btn px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 border border-white/8"
-            data-tab="dagboek">
-            Dagboek
-        </button>
-        <button 
-            class="tab-btn px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 border border-white/8"
-            data-tab="overzicht">
-            Overzicht
-        </button>
-        <button 
-            class="tab-btn px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 border border-white/8"
-            data-tab="nutrition-limieten">
-            Wijzig nutrition limieten
-        </button>
-        <form action="{{ route('logout') }}" method="POST" class="ml-4">
+    <div class="flex justify-between items-center px-4 my-4">
+        <div></div>
+        <h1>KMD's foodtracker</h1>
+        <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button type="submit" class="px-5 py-3 bg-gradient-to-r from-[#000000] via-[#0A0E1F] to-[#102459] text-white rounded-lg cursor-pointer hover:brightness-110 transition">
-                Uitloggen
+            <button type="submit" class="text-white text-2xl hover:opacity-70 transition" title="Uitloggen">
+                🚪
             </button>
         </form>
+    </div>
+    <nav class="flex justify-center gap-2 my-5">
+        <a 
+            href="{{ route('products') }}"
+            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('products') ? 'active' : '' }}">
+            Producten
+        </a>
+        <a 
+            href="{{ route('diary') }}"
+            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('diary') ? 'active' : '' }}">
+            Dagboek
+        </a>
+        <a 
+            href="{{ route('overview') }}"
+            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('overview') ? 'active' : '' }}">
+            Overzicht
+        </a>
+        <a 
+            href="{{ route('nutrition-limits') }}"
+            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('nutrition-limits') ? 'active' : '' }}">
+            Wijzig nutrition limieten
+        </a>
     </nav>
     
     <main>

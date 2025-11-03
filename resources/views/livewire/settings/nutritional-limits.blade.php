@@ -2,7 +2,7 @@
     <h2 class="text-gray-400 text-xl mb-6">Nutrition limieten aanpassen</h2>
     
     @if(session()->has('message'))
-        <div class="mb-4 p-4 bg-green-500 bg-opacity-20 border border-green-500 rounded-lg text-green-400">
+        <div class="mb-4 px-4 py-3 bg-green-600 bg-opacity-30 border border-green-500 border-opacity-50 rounded-lg text-green-200 text-center">
             {{ session('message') }}
         </div>
     @endif

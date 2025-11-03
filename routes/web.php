@@ -9,12 +9,30 @@ Route::get('/', function () {
 });
 
 Volt::route('/login', 'auth.login')->name('login');
-Volt::route('/register', 'auth.register')->name('register');
+// Registration disabled
+// Volt::route('/register', 'auth.register')->name('register');
 
 Route::middleware('auth')->group(function () {
+    // Default redirect to products page
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect('/producten');
     });
+    
+    Route::get('/producten', function () {
+        return view('products');
+    })->name('products');
+    
+    Route::get('/dagboek', function () {
+        return view('diary');
+    })->name('diary');
+    
+    Route::get('/overzicht', function () {
+        return view('overview');
+    })->name('overview');
+    
+    Route::get('/nutrition-limieten', function () {
+        return view('nutrition-limits');
+    })->name('nutrition-limits');
     
     Route::post('/logout', function () {
         Auth::logout();
