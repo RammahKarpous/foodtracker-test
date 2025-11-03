@@ -1,0 +1,154 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [ laravel-conversion ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, zip, gd, exif, iconv, intl, json, xml, curl, openssl, pdo, pdo_mysql, bcmath, soap, xmlrpc, readline, libxml, xml, xmlreader, xmlwriter, xsl
+          coverage: none
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+        
+      - name: Install NPM dependencies
+        run: npm ci
+        
+      - name: Build assets
+        run: npm run build
+        
+      - name: Ensure deployment directory exists
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            mkdir -p ${{ secrets.SERVER_DEPLOY_PATH }}
+          
+      - name: Deploy to Hostinger via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "."
+          target: ${{ secrets.SERVER_DEPLOY_PATH }}
+          strip_components: 0
+          rm: false
+          overwrite: true
+          
+      - name: Run post-deployment commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.SERVER_DEPLOY_PATH }} || exit 1
+            
+            # Create .env file if it doesn't exist
+            if [ ! -f .env ]; then
+              cat > .env << EOF
+            APP_NAME=Laravel
+            APP_ENV=production
+            APP_KEY=${{ secrets.APP_KEY }}
+            APP_DEBUG=false
+            APP_URL=${{ secrets.APP_URL }}
+
+            LOG_CHANNEL=stack
+            LOG_LEVEL=error
+
+            DB_CONNECTION=mysql
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_DATABASE=${{ secrets.DB_DATABASE }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+            BROADCAST_DRIVER=log
+            CACHE_DRIVER=file
+            FILESYSTEM_DISK=local
+            QUEUE_CONNECTION=sync
+            SESSION_DRIVER=file
+            SESSION_LIFETIME=120
+            EOF
+              chmod 600 .env
+              echo "Created new .env file"
+            else
+              echo "Using existing .env file"
+            fi
+            
+            # Remove unnecessary files (if they exist)
+            [ -d node_modules ] && rm -rf node_modules || true
+            [ -d tests ] && rm -rf tests || true
+            [ -d .git ] && rm -rf .git || true
+            [ -d .github ] && rm -rf .github || true
+            [ -f README.md ] && rm -f README.md || true
+            [ -f SPOTIFY_SETUP.md ] && rm -f SPOTIFY_SETUP.md || true
+            [ -f DEPLOYMENT.md ] && rm -f DEPLOYMENT.md || true
+            [ -f vite.config.js ] && rm -f vite.config.js || true
+            [ -f package.json ] && rm -f package.json || true
+            [ -f package-lock.json ] && rm -f package-lock.json || true
+            [ -f .env.example ] && rm -f .env.example || true
+            [ -f .gitignore ] && rm -f .gitignore || true
+            [ -f .gitattributes ] && rm -f .gitattributes || true
+            
+            # Create .htaccess redirect to public folder
+            cat > .htaccess << 'EOF'
+            <IfModule mod_rewrite.c>
+                RewriteEngine On
+                RewriteRule ^(.*)$ public/$1 [L]
+            </IfModule>
+            EOF
+            
+            # Set proper permissions (avoid recursive chmod on entire directory)
+            find . -type f -name "*.php" -exec chmod 644 {} \;
+            find . -type d -exec chmod 755 {} \;
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
+            chmod 600 .env
+            
+            # Run Laravel commands (skip storage:link if exec() is disabled)
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+            
+            # Try to create storage link, but don't fail if exec() is disabled
+            if php artisan storage:link 2>/dev/null; then
+              echo "Storage link created successfully"
+            else
+              echo "Storage link failed (exec() may be disabled), creating manually"
+              ln -sf ../storage/app/public public/storage 2>/dev/null || echo "Manual storage link also failed"
+            fi
+            
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+          else
+            echo "❌ Deployment failed!"
+          fi

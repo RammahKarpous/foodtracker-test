@@ -16,6 +16,11 @@ class Index extends Component
     public $productNaam = '';
     public $gram = '';
     public $editingId = null;
+    
+    // Edit form fields
+    public $editMoment = '';
+    public $editProductNaam = '';
+    public $editGram = '';
 
     public function mount()
     {
@@ -152,10 +157,50 @@ class Index extends Component
         $entry = DiaryEntry::where('id', $id)->where('user_id', Auth::id())->first();
         if ($entry) {
             $this->editingId = $id;
-            $this->moment = $entry->moment;
-            $this->productNaam = $entry->product_naam;
-            $this->gram = number_format((float)$entry->gram, 2, '.', '');
+            $this->editMoment = $entry->moment;
+            $this->editProductNaam = $entry->product_naam;
+            $this->editGram = number_format((float)$entry->gram, 2, '.', '');
         }
+    }
+    
+    public function update()
+    {
+        $this->validate([
+            'editMoment' => 'required',
+            'editProductNaam' => 'required',
+            'editGram' => 'required|numeric',
+        ]);
+        
+        $product = Product::where('user_id', Auth::id())
+            ->whereRaw('LOWER(naam) = LOWER(?)', [$this->editProductNaam])
+            ->first();
+        
+        if (!$product) {
+            $this->addError('editProductNaam', 'Product niet gevonden');
+            return;
+        }
+        
+        $gram = floatval(str_replace(',', '.', $this->editGram));
+        $data = [
+            'product_naam' => $this->editProductNaam,
+            'moment' => $this->editMoment,
+            'gram' => $gram,
+            'kcal' => round($product->kcal * $gram / 100, 1),
+            'vet' => round($product->vet * $gram / 100, 1),
+            'verzadigd' => round($product->verzadigd * $gram / 100, 1),
+            'koolhydraten' => round($product->koolhydraten * $gram / 100, 1),
+            'suiker' => round($product->suiker * $gram / 100, 1),
+            'eiwit' => round($product->eiwit * $gram / 100, 1),
+        ];
+        
+        DiaryEntry::where('id', $this->editingId)->update($data);
+        session()->flash('message', 'Entry is bijgewerkt');
+        $this->reset('editMoment', 'editProductNaam', 'editGram', 'editingId');
+    }
+    
+    public function closeModal()
+    {
+        $this->reset('editMoment', 'editProductNaam', 'editGram', 'editingId');
     }
 
     public function deleteEntry($id)

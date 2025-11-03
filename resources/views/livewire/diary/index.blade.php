@@ -67,7 +67,7 @@
             type="submit" 
             class="w-full px-6 py-3 bg-gradient-to-r from-[#000000] via-[#0A0E1F] to-[#102459] text-white rounded-lg font-semibold hover:brightness-110 transition mt-2"
         >
-            {{ $editingId ? 'Bijwerken' : 'Toevoegen aan dagboek' }}
+            Toevoegen aan dagboek
         </button>
     </form>
     
@@ -159,4 +159,63 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Edit Modal -->
+    @if($editingId)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;">
+            <div class="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl p-8 shadow-xl max-w-md w-full mx-4" style="max-height: 90vh; overflow-y: auto;">
+                <h2 class="text-2xl text-gray-400 mb-6 text-center">Entry bewerken</h2>
+                
+                <form wire:submit.prevent="update" class="flex flex-col gap-2">
+                    <select 
+                        wire:model="editMoment" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                        <option value="">Kies eetmoment...</option>
+                        <option>Ontbijt</option>
+                        <option>Lunch</option>
+                        <option>Tussendoor</option>
+                        <option>Diner</option>
+                        <option>Voor training</option>
+                        <option>Na training</option>
+                    </select>
+                    
+                    <input 
+                        wire:model="editProductNaam" 
+                        list="products" 
+                        placeholder="Zoek of kies product..." 
+                        autocomplete="off"
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    
+                    <input 
+                        wire:model="editGram" 
+                        type="text" 
+                        pattern="[0-9]*[.,]?[0-9]*" 
+                        placeholder="Aantal gram" 
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                    
+                    <div class="flex gap-2 mt-4">
+                        <button 
+                            type="submit" 
+                            class="flex-1 px-6 py-3 bg-gradient-to-r from-[#000000] via-[#0A0E1F] to-[#102459] text-white rounded-lg font-semibold hover:brightness-110 transition"
+                        >
+                            Bijwerken
+                        </button>
+                        <button 
+                            type="button" 
+                            wire:click="closeModal" 
+                            class="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:brightness-110 transition"
+                        >
+                            Annuleren
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </div>

@@ -142,8 +142,8 @@
 
     <!-- Edit Modal -->
     @if($editingId)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl p-8 shadow-xl max-w-md w-full mx-4">
+        <div class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[100] h-screen">
+            <div class="bg-black border border-white border-opacity-20 rounded-2xl p-8 shadow-xl max-w-md w-full mx-4">
                 <h2 class="text-2xl text-gray-400 mb-6 text-center">Product bewerken</h2>
                 
                 <form wire:submit.prevent="update" class="flex flex-col gap-2">
