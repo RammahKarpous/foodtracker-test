@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voeding Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2c2c2e;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3c3c3e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            color: #8e8e93;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(139, 101, 60, 0.3);
+            margin-bottom: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .tab-btn {
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #8e8e93;
+            border: 1px solid rgba(139, 101, 60, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: rgba(30, 58, 138, 0.6);
+            color: #ffffff;
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .tab-btn:hover {
+            background: rgba(28, 28, 30, 0.8);
+            border-color: rgba(139, 101, 60, 0.5);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .date-nav-btn {
+            background: transparent;
+            color: #4c7fba;
+            border: none;
+            padding: 5px 15px;
+            font-size: 2.5em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .date-nav-btn:hover {
+            color: #5d8dc7;
+        }
+
+        .date-nav-btn:active {
+            transform: scale(0.9);
+        }
+
+        .date-display {
+            color: #8e8e93;
+            font-size: 1em;
+            font-weight: 400;
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .add-form-section {
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(139, 101, 60, 0.3);
+            margin-bottom: 0;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #000000;
+        }
+
+        .category-card {
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(139, 101, 60, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .category-card:hover {
+            background: rgba(28, 28, 30, 0.85);
+            border-color: rgba(139, 101, 60, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(139, 101, 60, 0.2);
+        }
+
+        .category-card h3 {
+            font-size: 1em;
+            margin-bottom: 15px;
+            color: #ffffff;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .category-chart {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px;
+        }
+
+        .category-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-label {
+            color: #8e8e93;
+            font-weight: 400;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .category-card.green {
+            border-left: none;
+        }
+
+        .category-card.orange {
+            border-left: none;
+        }
+
+        .category-card.red {
+            border-left: none;
+        }
+
+        .warning {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 400;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .warning.orange {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.4);
+        }
+
+        .warning.red {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.4);
+        }
+
+        .add-form-section h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8e8e93;
+            font-weight: 400;
+            font-size: 0.9em;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(139, 101, 60, 0.4);
+            border-radius: 8px;
+            font-size: 1em;
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .form-group select option {
+            background: #1c1c1e;
+            color: #ffffff;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(139, 101, 60, 0.7);
+            background: rgba(28, 28, 30, 0.8);
+            box-shadow: 0 0 20px rgba(139, 101, 60, 0.2);
+        }
+
+        .add-btn {
+            width: 100%;
+            background: rgba(30, 58, 138, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.4);
+        }
+
+        .add-btn:hover {
+            background: rgba(30, 58, 138, 0.8);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 6px 25px rgba(30, 58, 138, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .add-btn:active {
+            transform: translateY(0);
+        }
+
+        .chart-section {
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 0;
+            border-top: 1px solid rgba(139, 101, 60, 0.3);
+        }
+
+        .chart-section h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .overview-table th,
+        .overview-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(139, 101, 60, 0.2);
+        }
+
+        .overview-table th {
+            color: #8e8e93;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .overview-table td {
+            color: #ffffff;
+            font-size: 0.95em;
+        }
+
+        .history-section {
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 25px;
+            border-top: 1px solid rgba(139, 101, 60, 0.3);
+            margin-top: 20px;
+        }
+
+        .history-section h2 {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .history-category {
+            margin-bottom: 25px;
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 101, 60, 0.3);
+        }
+
+        .history-category h3 {
+            color: #ffffff;
+            font-size: 1em;
+            font-weight: 500;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(139, 101, 60, 0.2);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border-left: 3px solid rgba(139, 101, 60, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-left-color: rgba(139, 101, 60, 0.8);
+        }
+
+        .history-item-name {
+            color: #ffffff;
+            font-weight: 400;
+            flex: 1;
+        }
+
+        .history-item-grams {
+            color: #4c7fba;
+            font-weight: 500;
+            margin-left: 15px;
+        }
+
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            color: #e74c3c;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.4);
+            border-color: rgba(231, 76, 60, 0.6);
+            transform: scale(1.1);
+        }
+
+        .delete-btn:active {
+            transform: scale(0.95);
+        }
+
+        .history-empty {
+            color: #8e8e93;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .red-meat-info {
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 101, 60, 0.3);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .red-meat-info h3 {
+            color: #ffffff;
+            font-size: 1em;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .red-meat-info .red-meat-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8e8e93;
+            font-size: 0.95em;
+        }
+
+        .red-meat-info .red-meat-value {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .red-meat-info.warning .red-meat-value {
+            color: #f39c12;
+        }
+
+        .red-meat-info.danger .red-meat-value {
+            color: #e74c3c;
+        }
+
+        .red-meat-progress {
+            width: 100%;
+            height: 8px;
+            background: #2c2c2e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .red-meat-progress-fill {
+            height: 100%;
+            background: #4c7fba;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .red-meat-progress-fill.warning {
+            background: #f39c12;
+        }
+
+        .red-meat-progress-fill.danger {
+            background: #e74c3c;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #2c2c2e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4c7fba;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.warning {
+            background: #f39c12;
+        }
+
+        .progress-fill.danger {
+            background: #e74c3c;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .day-card {
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 101, 60, 0.4);
+            text-align: center;
+        }
+
+        .day-card h3 {
+            color: #ffffff;
+            font-size: 1em;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .day-card .day-date {
+            color: #8e8e93;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+
+        .day-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.85em;
+        }
+
+        .day-summary-item {
+            display: flex;
+            justify-content: space-between;
+            color: #8e8e93;
+        }
+
+        .day-summary-value {
+            color: #ffffff;
+        }
+
+        @media (max-width: 968px) {
+            .week-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 968px) {
+            h1 {
+                font-size: 1.3em;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.2em;
+            }
+
+            .category-card,
+            .add-form-section,
+            .chart-section {
+                padding: 15px;
+            }
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .date-display {
+                font-size: 0.9em;
+                min-width: 200px;
+            }
+
+            .date-nav-btn {
+                font-size: 2em;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .category-card {
+                padding: 15px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                font-size: 0.85em;
+                padding: 8px 15px;
+            }
+
+            .overview-table {
+                font-size: 0.85em;
+            }
+
+            .overview-table th,
+            .overview-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>KMD's foodtracker</h1>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('dagboek')">Dagboek</button>
+                <button class="tab-btn" onclick="switchTab('overzicht')">Overzicht</button>
+                <button class="tab-btn" onclick="switchTab('week')">Weekoverzicht</button>
+            </div>
+        </header>
+
+        <div id="dagboek" class="tab-content active">
+            <div style="background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(139, 101, 60, 0.3); padding: 15px 20px;">
+                <div class="date-selector">
+                    <button class="date-nav-btn" onclick="changeDay(-1)">‹</button>
+                    <div class="date-display" id="dateDisplay"></div>
+                    <button class="date-nav-btn" onclick="changeDay(1)">›</button>
+                </div>
+            </div>
+
+            <div class="add-form-section">
+            <h2>Voeg Eten Toe</h2>
+            <form onsubmit="addFood(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Categorie:</label>
+                        <select id="category" required onchange="updateUnitLabel(); toggleRedMeatCheckbox()">
+                            <option value="">-- Selecteer --</option>
+                            <option value="groente">Groente</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="koolhydraten">Koolhydraten</option>
+                            <option value="vlees">Vlees</option>
+                            <option value="noten">Noten</option>
+                            <option value="zuivel">Zuivel</option>
+                            <option value="kaas">Kaas</option>
+                            <option value="vet">Vet</option>
+                            <option value="vocht">Vocht</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Productnaam:</label>
+                        <input type="text" id="productName" placeholder="bijv. spinazie" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="grams" id="amountLabel">Gram:</label>
+                        <input type="number" id="grams" min="1" placeholder="100" required>
+                    </div>
+                </div>
+                <div class="form-group" id="redMeatGroup" style="display: none;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="isRedMeat" style="width: auto; cursor: pointer;">
+                        <span>Rood vlees (voor weeklimiet)</span>
+                    </label>
+                </div>
+                <button type="submit" class="add-btn">Toevoegen</button>
+            </form>
+        </div>
+
+            <div class="categories-grid" id="categoriesGrid"></div>
+            
+            <div class="history-section">
+                <h2>Geschiedenis - Toegevoegde Producten</h2>
+                <div id="historyContent"></div>
+            </div>
+        </div>
+
+        <div id="overzicht" class="tab-content">
+            <div class="chart-section">
+                <h2>Dagelijks Overzicht - Tabel</h2>
+                <table class="overview-table" id="overviewTable">
+                    <thead>
+                        <tr>
+                            <th>Categorie</th>
+                            <th>Gegeten</th>
+                            <th>Doel</th>
+                            <th>Voortgang</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overviewTableBody">
+                    </tbody>
+                </table>
+
+                <h2>Dagelijks Overzicht - Grafiek</h2>
+                <div class="chart-container">
+                    <canvas id="nutritionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="week" class="tab-content">
+            <div class="chart-section">
+                <h2>Weekoverzicht (Ma - Vr)</h2>
+                <div class="date-selector" style="margin-bottom: 25px;">
+                    <button class="date-nav-btn" onclick="changeWeek(-1)">‹</button>
+                    <div class="date-display" id="weekDisplay"></div>
+                    <button class="date-nav-btn" onclick="changeWeek(1)">›</button>
+                </div>
+                <div id="redMeatWeeklyInfo" class="red-meat-info"></div>
+                <div class="week-grid" id="weekGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dagelijkse limieten
+        const GOALS = {
+            groente: { name: 'Groente', max: 250, color: '#27ae60', unit: 'g' },
+            fruit: { name: 'Fruit', max: 300, color: '#e74c3c', unit: 'g' },
+            koolhydraten: { name: 'Koolhydraten', max: 495, color: '#f39c12', unit: 'g' },
+            vlees: { name: 'Vlees', max: 100, color: '#e67e22', unit: 'g' },
+            noten: { name: 'Ongezouten noten', max: 25, color: '#8e44ad', unit: 'g' },
+            zuivel: { name: 'Zuivelproducten', max: 450, color: '#3498db', unit: 'g' },
+            kaas: { name: 'Kaas', max: 40, color: '#f1c40f', unit: 'g' },
+            vet: { name: 'Bereidingsvet', max: 15, color: '#95a5a6', unit: 'g' },
+            vocht: { name: 'Vocht', max: 2000, color: '#00bcd4', unit: 'ml' }
+        };
+
+        // Weeklimiet voor rood vlees
+        const RED_MEAT_WEEKLY_LIMIT = 300; // gram per week
+
+        let overviewChart = null;
+        let categoryCharts = {};
+        let currentDate = null; // Formaat: YYYY-MM-DD (voor Dagboek)
+        let overviewDate = null; // Formaat: YYYY-MM-DD (voor Overzicht)
+        let currentWeekMonday = null; // Date object: Maandag van de getoonde week
+
+        // Initialiseer de app
+        function init() {
+            currentDate = getTodayDateString();
+            overviewDate = getTodayDateString(); // Begin met vandaag voor overzicht
+            setupDatePicker();
+            loadData();
+            // Stel huidige week maandag in o.b.v. huidige datum
+            currentWeekMonday = getMondayOfWeek(parseStringToDate(currentDate));
+            updateWeekDisplay();
+            updateOverviewDateDisplay();
+            updateDisplay();
+            updateOverviewTable();
+            updateWeekOverview();
+            updateRedMeatWeeklyInfo();
+        }
+
+        // Switch tussen tabs
+        function switchTab(tabName) {
+            // Verberg alle tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Verwijder active class van alle tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Toon geselecteerde tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activeer juiste button
+            event.target.classList.add('active');
+            
+            // Update displays als nodig
+            if (tabName === 'overzicht') {
+                updateOverviewDateDisplay();
+                updateOverviewTable();
+                updateChart();
+            } else if (tabName === 'week') {
+                updateWeekDisplay();
+                updateWeekOverview();
+                updateRedMeatWeeklyInfo();
+            }
+        }
+
+        // Update unit label op basis van categorie
+        function updateUnitLabel() {
+            const category = document.getElementById('category').value;
+            const label = document.getElementById('amountLabel');
+            const input = document.getElementById('grams');
+            
+            if (category === 'vocht') {
+                label.textContent = 'Milliliter:';
+                input.placeholder = '250';
+            } else {
+                label.textContent = 'Gram:';
+                input.placeholder = '100';
+            }
+        }
+
+        // Toggle rood vlees checkbox
+        function toggleRedMeatCheckbox() {
+            const category = document.getElementById('category').value;
+            const redMeatGroup = document.getElementById('redMeatGroup');
+            const isRedMeatCheckbox = document.getElementById('isRedMeat');
+            
+            if (category === 'vlees') {
+                redMeatGroup.style.display = 'block';
+            } else {
+                redMeatGroup.style.display = 'none';
+                isRedMeatCheckbox.checked = false;
+            }
+        }
+
+        // Get vandaag als string (YYYY-MM-DD)
+        function getTodayDateString() {
+            const today = new Date();
+            return formatDateToString(today);
+        }
+
+        // Formatteer Date object naar YYYY-MM-DD
+        function formatDateToString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Parse YYYY-MM-DD naar Date object
+        function parseStringToDate(dateString) {
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        // Setup date picker
+        function setupDatePicker() {
+            updateDateDisplay();
+        }
+
+        // Update datum display
+        function updateDateDisplay() {
+            const date = parseStringToDate(currentDate);
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const dateString = date.toLocaleDateString('nl-NL', options);
+            
+            document.getElementById('dateDisplay').textContent = dateString;
+        }
+
+        // Update overzicht datum display
+        function updateOverviewDateDisplay() {
+            if (!overviewDate) overviewDate = getTodayDateString();
+            const date = parseStringToDate(overviewDate);
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            const dateString = date.toLocaleDateString('nl-NL', options);
+            
+            const display = document.getElementById('overviewDateDisplay');
+            if (display) {
+                display.textContent = dateString;
+            }
+        }
+
+        // Verander overzicht dag met offset (-1 voor gisteren, +1 voor morgen)
+        function changeOverviewDay(offset) {
+            if (!overviewDate) overviewDate = getTodayDateString();
+            const date = parseStringToDate(overviewDate);
+            date.setDate(date.getDate() + offset);
+            overviewDate = formatDateToString(date);
+            updateOverviewDateDisplay();
+            updateOverviewTable();
+            updateChart();
+        }
+
+        // Verander dag met offset (-1 voor gisteren, +1 voor morgen)
+        function changeDay(offset) {
+            const date = parseStringToDate(currentDate);
+            date.setDate(date.getDate() + offset);
+            currentDate = formatDateToString(date);
+            updateDateDisplay();
+            updateDisplay();
+            // Als de dag over weekgrens gaat, update week maandag en display
+            const newMonday = getMondayOfWeek(date);
+            if (!currentWeekMonday || newMonday.getTime() !== currentWeekMonday.getTime()) {
+                currentWeekMonday = newMonday;
+                updateWeekDisplay();
+                updateWeekOverview();
+            }
+        }
+
+
+        // Laad data uit localStorage
+        function loadData() {
+            const saved = localStorage.getItem('nutritionHistory');
+            if (!saved) {
+                localStorage.setItem('nutritionHistory', JSON.stringify({}));
+            }
+        }
+
+        // Haal alle data op
+        function getAllData() {
+            const saved = localStorage.getItem('nutritionHistory');
+            return saved ? JSON.parse(saved) : {};
+        }
+
+        // Bepaal maandag van een gegeven datum
+        function getMondayOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay(); // 0 = zo, 1 = ma
+            const diff = day === 0 ? -6 : 1 - day; // Als zondag, ga 6 dagen terug
+            d.setDate(d.getDate() + diff);
+            d.setHours(0,0,0,0);
+            return d;
+        }
+
+        // Toon weekbereik (dd/mm – dd/mm)
+        function updateWeekDisplay() {
+            const weekLabel = document.getElementById('weekDisplay');
+            if (!weekLabel || !currentWeekMonday) return;
+            const monday = new Date(currentWeekMonday);
+            const friday = new Date(currentWeekMonday);
+            friday.setDate(monday.getDate() + 4);
+            const fmt = (d) => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+            weekLabel.textContent = `${fmt(monday)} – ${fmt(friday)}`;
+        }
+
+        // Verander week met offset in weken (-1 vorige, +1 volgende)
+        function changeWeek(offsetWeeks) {
+            if (!currentWeekMonday) currentWeekMonday = getMondayOfWeek(parseStringToDate(currentDate));
+            currentWeekMonday.setDate(currentWeekMonday.getDate() + offsetWeeks * 7);
+            updateWeekDisplay();
+            updateWeekOverview();
+            updateRedMeatWeeklyInfo();
+        }
+
+        // Bereken totaal rood vlees voor de huidige week
+        function getWeeklyRedMeatTotal() {
+            if (!currentWeekMonday) return 0;
+            
+            const monday = new Date(currentWeekMonday);
+            let total = 0;
+            const allData = getAllData();
+            
+            // Loop door alle dagen van de week (ma-vr)
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                const dateString = formatDateToString(date);
+                const dayData = allData[dateString] || {};
+                const vleesHistory = dayData['vlees_history'] || [];
+                
+                // Tel alleen rood vlees op
+                vleesHistory.forEach(item => {
+                    if (item.isRedMeat) {
+                        total += item.grams || 0;
+                    }
+                });
+            }
+            
+            return total;
+        }
+
+        // Update rood vlees weekinfo weergave
+        function updateRedMeatWeeklyInfo() {
+            const redMeatInfo = document.getElementById('redMeatWeeklyInfo');
+            if (!redMeatInfo) return;
+            
+            const total = getWeeklyRedMeatTotal();
+            const percentage = (total / RED_MEAT_WEEKLY_LIMIT * 100);
+            
+            let infoClass = '';
+            let progressClass = '';
+            if (percentage > 100) {
+                infoClass = 'danger';
+                progressClass = 'danger';
+            } else if (percentage > 80) {
+                infoClass = 'warning';
+                progressClass = 'warning';
+            }
+            
+            redMeatInfo.className = `red-meat-info ${infoClass}`;
+            redMeatInfo.innerHTML = `
+                <h3>Rood Vlees - Weeklimiet</h3>
+                <div class="red-meat-stats">
+                    <span>Gegeten:</span>
+                    <span class="red-meat-value">${total}g / ${RED_MEAT_WEEKLY_LIMIT}g</span>
+                </div>
+                <div class="red-meat-progress">
+                    <div class="red-meat-progress-fill ${progressClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+                </div>
+            `;
+        }
+
+        // Haal data voor huidige datum op
+        function getData() {
+            const allData = getAllData();
+            if (!allData[currentDate]) {
+                // Initialiseer met 0 voor alle categorieën en lege history arrays
+                const initialData = {};
+                Object.keys(GOALS).forEach(key => {
+                    initialData[key] = 0;
+                    initialData[`${key}_history`] = [];
+                });
+                return initialData;
+            }
+            // Zorg ervoor dat oude data ook history arrays heeft
+            const data = allData[currentDate];
+            Object.keys(GOALS).forEach(key => {
+                if (!data[`${key}_history`]) {
+                    data[`${key}_history`] = [];
+                }
+            });
+            return data;
+        }
+
+        // Haal geschiedenis op voor een categorie
+        function getHistory(category) {
+            const data = getData();
+            return data[`${category}_history`] || [];
+        }
+
+        // Sla data op voor huidige datum
+        function saveData(data) {
+            const allData = getAllData();
+            allData[currentDate] = data;
+            localStorage.setItem('nutritionHistory', JSON.stringify(allData));
+        }
+
+        // Voeg eten toe
+        function addFood(event) {
+            event.preventDefault();
+            
+            const category = document.getElementById('category').value;
+            const productName = document.getElementById('productName').value.trim();
+            const grams = parseInt(document.getElementById('grams').value);
+            const isRedMeat = category === 'vlees' && document.getElementById('isRedMeat').checked;
+
+            const data = getData();
+            data[category] = (data[category] || 0) + grams;
+            
+            // Voeg product toe aan geschiedenis
+            if (!data[`${category}_history`]) {
+                data[`${category}_history`] = [];
+            }
+            const historyItem = {
+                name: productName,
+                grams: grams,
+                timestamp: new Date().toISOString(),
+                id: Date.now() + Math.random() // Unieke ID voor verwijdering
+            };
+            if (isRedMeat) {
+                historyItem.isRedMeat = true;
+            }
+            data[`${category}_history`].push(historyItem);
+            
+            saveData(data);
+
+            // Reset form
+            document.getElementById('category').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('grams').value = '';
+            document.getElementById('isRedMeat').checked = false;
+            document.getElementById('redMeatGroup').style.display = 'none';
+
+            updateDisplay();
+        }
+
+        // Bepaal kleur op basis van percentage
+        function getColor(percentage) {
+            if (percentage <= 100) return 'green';
+            if (percentage <= 110) return 'orange';
+            return 'red';
+        }
+
+        // Update alle displays
+        function updateDisplay() {
+            updateCategoriesGrid();
+            updateChart();
+            updateOverviewTable();
+            updateWeekOverview();
+            updateHistory();
+            updateRedMeatWeeklyInfo();
+        }
+
+        // Haal data voor overzicht datum op
+        function getOverviewData() {
+            if (!overviewDate) overviewDate = getTodayDateString();
+            const allData = getAllData();
+            if (!allData[overviewDate]) {
+                // Initialiseer met 0 voor alle categorieën en lege history arrays
+                const initialData = {};
+                Object.keys(GOALS).forEach(key => {
+                    initialData[key] = 0;
+                    initialData[`${key}_history`] = [];
+                });
+                return initialData;
+            }
+            // Zorg ervoor dat oude data ook history arrays heeft
+            const data = allData[overviewDate];
+            Object.keys(GOALS).forEach(key => {
+                if (!data[`${key}_history`]) {
+                    data[`${key}_history`] = [];
+                }
+            });
+            return data;
+        }
+
+        // Update overzichtstabel
+        function updateOverviewTable() {
+            const data = getOverviewData();
+            const tbody = document.getElementById('overviewTableBody');
+            tbody.innerHTML = '';
+
+            Object.keys(GOALS).forEach(key => {
+                const goal = GOALS[key];
+                const current = data[key] || 0;
+                const percentage = (current / goal.max * 100);
+                
+                let progressClass = '';
+                if (percentage > 110) progressClass = 'danger';
+                else if (percentage > 100) progressClass = 'warning';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${goal.name}</td>
+                    <td>${current}${goal.unit}</td>
+                    <td>${goal.max}${goal.unit}</td>
+                    <td>
+                        <div>${percentage.toFixed(1)}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill ${progressClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update weekoverzicht
+        function updateWeekOverview() {
+            const grid = document.getElementById('weekGrid');
+            grid.innerHTML = '';
+            
+            // Gebruik huidige geselecteerde week (fallback naar week van vandaag)
+            const monday = currentWeekMonday ? new Date(currentWeekMonday) : getMondayOfWeek(new Date());
+            
+            // Toon ma t/m vr
+            for (let i = 0; i < 5; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                const dateString = formatDateToString(date);
+                
+                const allData = getAllData();
+                const dayData = allData[dateString] || {};
+                
+                const dayNames = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'];
+                
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                
+                let summaryHTML = '<div class="day-summary">';
+                Object.keys(GOALS).forEach(key => {
+                    const goal = GOALS[key];
+                    const current = dayData[key] || 0;
+                    const percentage = (current / goal.max * 100).toFixed(0);
+                    summaryHTML += `
+                        <div class="day-summary-item">
+                            <span>${goal.name}:</span>
+                            <span class="day-summary-value">${percentage}%</span>
+                        </div>
+                    `;
+                });
+                summaryHTML += '</div>';
+                
+                card.innerHTML = `
+                    <h3>${dayNames[i]}</h3>
+                    <div class="day-date">${date.getDate()}/${date.getMonth() + 1}</div>
+                    ${summaryHTML}
+                `;
+                
+                grid.appendChild(card);
+            }
+        }
+
+        // Update categorieën grid
+        function updateCategoriesGrid() {
+            const data = getData();
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = '';
+
+            Object.keys(GOALS).forEach(key => {
+                const goal = GOALS[key];
+                const current = data[key] || 0;
+                const remaining = Math.max(0, goal.max - current);
+                const percentage = (current / goal.max * 100).toFixed(1);
+                const color = getColor(percentage);
+
+                const card = document.createElement('div');
+                card.className = `category-card ${color}`;
+
+                let warningHTML = '';
+                if (percentage > 110) {
+                    warningHTML = '<div class="warning red">⚠️ Je hebt je limiet overschreden!</div>';
+                } else if (percentage > 100) {
+                    warningHTML = '<div class="warning orange">⚠️ Let op: je nadert je limiet</div>';
+                }
+
+                const canvasId = `chart-${key}`;
+                
+                card.innerHTML = `
+                    <h3>${goal.name}</h3>
+                    <div class="category-chart">
+                        <canvas id="${canvasId}"></canvas>
+                    </div>
+                    <div class="category-info">
+                        <div class="info-row">
+                            <span class="info-label">Gegeten:</span>
+                            <span class="info-value">${current}${goal.unit}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Maximaal:</span>
+                            <span class="info-value">${goal.max}${goal.unit}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Resterend:</span>
+                            <span class="info-value">${remaining}${goal.unit}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Percentage:</span>
+                            <span class="info-value">${percentage}%</span>
+                        </div>
+                    </div>
+                    ${warningHTML}
+                `;
+
+                grid.appendChild(card);
+
+                // Creëer mini pie chart voor deze categorie
+                setTimeout(() => createCategoryChart(key, canvasId, current, goal.max, goal.color), 0);
+            });
+        }
+
+        // Creëer een mini pie chart voor een specifieke categorie
+        function createCategoryChart(key, canvasId, current, max, categoryColor) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            // Vernietig oude chart als die bestaat
+            if (categoryCharts[key]) {
+                categoryCharts[key].destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            const remaining = Math.max(0, max - current);
+            const percentage = (current / max * 100);
+
+            // Gebruik altijd blauw voor gegeten, grijs voor resterend (zoals screenshot)
+            let eatenColor = '#4c7fba';
+            let remainingColor = '#2c2c2e';
+
+            categoryCharts[key] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Gegeten', 'Resterend'],
+                    datasets: [{
+                        data: [current, remaining],
+                        backgroundColor: [eatenColor, remainingColor],
+                        borderWidth: 0,
+                        borderColor: 'transparent'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#1c1c1e',
+                            titleColor: '#ffffff',
+                            bodyColor: '#8e8e93',
+                            borderColor: '#2c2c2e',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const unit = GOALS[key].unit;
+                                    return `${context.label}: ${context.parsed}${unit}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Verwijder een product uit de geschiedenis
+        function deleteHistoryItem(category, itemId) {
+            const allData = getAllData();
+            const data = allData[currentDate] || getData();
+            const history = data[`${category}_history`] || [];
+            
+            // Convert itemId to number if it's a number string
+            const itemIndex = history.findIndex(item => {
+                if (typeof item.id === 'number' && typeof itemId === 'string') {
+                    return item.id.toString() === itemId || item.id === parseFloat(itemId);
+                }
+                return item.id == itemId || item.id.toString() === itemId.toString();
+            });
+            
+            if (itemIndex === -1) return;
+            
+            const item = history[itemIndex];
+            // Pas total aan
+            data[category] = Math.max(0, (data[category] || 0) - item.grams);
+            
+            // Verwijder uit history
+            history.splice(itemIndex, 1);
+            data[`${category}_history`] = history;
+            
+            // Update in allData en sla op
+            allData[currentDate] = data;
+            localStorage.setItem('nutritionHistory', JSON.stringify(allData));
+            updateDisplay();
+        }
+
+        // Update geschiedenis weergave
+        function updateHistory() {
+            const historyContent = document.getElementById('historyContent');
+            historyContent.innerHTML = '';
+
+            let hasAnyHistory = false;
+            
+            Object.keys(GOALS).forEach(key => {
+                const history = getHistory(key);
+                if (history.length > 0) {
+                    hasAnyHistory = true;
+                    const goal = GOALS[key];
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'history-category';
+                    
+                    let historyHTML = '<div class="history-list">';
+                    history.forEach((item, index) => {
+                        // Geef item een ID als die nog niet bestaat (voor oude data)
+                        if (!item.id) {
+                            item.id = Date.now() + index + Math.random();
+                            // Sla de update op
+                            const data = getData();
+                            data[`${key}_history`] = history;
+                            saveData(data);
+                        }
+                        const itemIdEscaped = typeof item.id === 'string' ? item.id.replace(/'/g, "\\'") : item.id;
+                        historyHTML += `
+                            <div class="history-item">
+                                <span class="history-item-name">${item.name}</span>
+                                <span class="history-item-grams">${item.grams}${goal.unit}</span>
+                                <button class="delete-btn" onclick="deleteHistoryItem('${key}', '${itemIdEscaped}')" title="Verwijder">×</button>
+                            </div>
+                        `;
+                    });
+                    historyHTML += '</div>';
+                    
+                    categoryDiv.innerHTML = `
+                        <h3>${goal.name}</h3>
+                        ${historyHTML}
+                    `;
+                    
+                    historyContent.appendChild(categoryDiv);
+                }
+            });
+
+            if (!hasAnyHistory) {
+                historyContent.innerHTML = '<div class="history-empty">Nog geen producten toegevoegd voor deze datum.</div>';
+            }
+        }
+
+        // Update Chart.js grafiek voor dagelijks overzicht
+        function updateChart() {
+            const data = getOverviewData();
+            const labels = [];
+            const values = [];
+            const colors = [];
+
+            Object.keys(GOALS).forEach(key => {
+                const goal = GOALS[key];
+                const current = data[key] || 0;
+                const percentage = (current / goal.max * 100);
+
+                labels.push(goal.name);
+                values.push(percentage.toFixed(1));
+                
+                // Gebruik de unieke kleur van elke categorie
+                colors.push(goal.color);
+            });
+
+            const ctx = document.getElementById('nutritionChart').getContext('2d');
+
+            // Vernietig oude chart als die bestaat
+            if (overviewChart) {
+                overviewChart.destroy();
+            }
+
+            overviewChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        borderColor: 'transparent'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                },
+                                color: '#8e8e93'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1c1c1e',
+                            titleColor: '#ffffff',
+                            bodyColor: '#8e8e93',
+                            borderColor: '#2c2c2e',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const key = Object.keys(GOALS)[context.dataIndex];
+                                    const currentData = getOverviewData();
+                                    const current = currentData[key] || 0;
+                                    const goal = GOALS[key];
+                                    const percentage = context.parsed;
+                                    return `${context.label}: ${current}${goal.unit} / ${goal.max}${goal.unit} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // Start de app wanneer de pagina geladen is
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+

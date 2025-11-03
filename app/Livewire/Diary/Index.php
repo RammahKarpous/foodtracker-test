@@ -12,15 +12,19 @@ use Carbon\Carbon;
 class Index extends Component
 {
     public $selectedDate;
+    public $category = '';
     public $moment = '';
     public $productNaam = '';
     public $gram = '';
+    public $isRedMeat = false;
     public $editingId = null;
     
     // Edit form fields
+    public $editCategory = '';
     public $editMoment = '';
     public $editProductNaam = '';
     public $editGram = '';
+    public $editIsRedMeat = false;
 
     public function mount()
     {
@@ -30,6 +34,7 @@ class Index extends Component
     protected function rules()
     {
         return [
+            'category' => 'required',
             'moment' => 'required',
             'productNaam' => 'required',
             'gram' => 'required|numeric',
@@ -55,7 +60,7 @@ class Index extends Component
     {
         return DiaryEntry::where('user_id', Auth::id())
             ->whereDate('datum', $this->selectedDate)
-            ->orderBy('moment')
+            ->orderBy('created_at', 'desc')
             ->get();
     }
 
@@ -130,6 +135,8 @@ class Index extends Component
         $data = [
             'user_id' => Auth::id(),
             'product_naam' => $this->productNaam,
+            'category' => $this->category,
+            'is_red_meat' => $this->category === 'vlees' && $this->isRedMeat,
             'moment' => $this->moment,
             'gram' => $gram,
             'kcal' => round($product->kcal * $gram / 100, 1),
@@ -149,7 +156,7 @@ class Index extends Component
             session()->flash('message', 'Toegevoegd aan dagboek');
         }
         
-        $this->reset('moment', 'productNaam', 'gram', 'editingId');
+        $this->reset('category', 'moment', 'productNaam', 'gram', 'isRedMeat', 'editingId');
     }
 
     public function edit($id)
@@ -157,15 +164,18 @@ class Index extends Component
         $entry = DiaryEntry::where('id', $id)->where('user_id', Auth::id())->first();
         if ($entry) {
             $this->editingId = $id;
+            $this->editCategory = $entry->category ?? '';
             $this->editMoment = $entry->moment;
             $this->editProductNaam = $entry->product_naam;
             $this->editGram = number_format((float)$entry->gram, 2, '.', '');
+            $this->editIsRedMeat = $entry->is_red_meat ?? false;
         }
     }
     
     public function update()
     {
         $this->validate([
+            'editCategory' => 'required',
             'editMoment' => 'required',
             'editProductNaam' => 'required',
             'editGram' => 'required|numeric',
@@ -183,6 +193,8 @@ class Index extends Component
         $gram = floatval(str_replace(',', '.', $this->editGram));
         $data = [
             'product_naam' => $this->editProductNaam,
+            'category' => $this->editCategory,
+            'is_red_meat' => $this->editCategory === 'vlees' && $this->editIsRedMeat,
             'moment' => $this->editMoment,
             'gram' => $gram,
             'kcal' => round($product->kcal * $gram / 100, 1),
@@ -195,12 +207,12 @@ class Index extends Component
         
         DiaryEntry::where('id', $this->editingId)->update($data);
         session()->flash('message', 'Entry is bijgewerkt');
-        $this->reset('editMoment', 'editProductNaam', 'editGram', 'editingId');
+        $this->reset('editCategory', 'editMoment', 'editProductNaam', 'editGram', 'editIsRedMeat', 'editingId');
     }
     
     public function closeModal()
     {
-        $this->reset('editMoment', 'editProductNaam', 'editGram', 'editingId');
+        $this->reset('editCategory', 'editMoment', 'editProductNaam', 'editGram', 'editIsRedMeat', 'editingId');
     }
 
     public function deleteEntry($id)

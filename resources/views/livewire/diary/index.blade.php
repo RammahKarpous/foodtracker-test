@@ -27,6 +27,26 @@
     
     <form wire:submit.prevent="save" class="w-full flex flex-col gap-2 mb-6">
         <select 
+            wire:model="category" 
+            id="diary-category"
+            onchange="toggleDiaryRedMeatCheckbox()"
+            class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+            required
+        >
+            <option value="">-- Selecteer Categorie --</option>
+            <option value="groente">Groente</option>
+            <option value="fruit">Fruit</option>
+            <option value="koolhydraten">Koolhydraten</option>
+            <option value="vlees">Vlees</option>
+            <option value="noten">Noten</option>
+            <option value="zuivel">Zuivel</option>
+            <option value="kaas">Kaas</option>
+            <option value="vet">Vet</option>
+            <option value="vocht">Vocht</option>
+        </select>
+        @error('category') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+        
+        <select 
             wire:model="moment" 
             class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
             required
@@ -62,6 +82,13 @@
             class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-blue-600"
             required
         >
+        
+        <div class="hidden mb-2" id="diary-redMeatGroup">
+            <label class="flex items-center gap-2.5 cursor-pointer text-gray-300 text-sm">
+                <input type="checkbox" wire:model="isRedMeat" id="diary-isRedMeat" class="w-auto cursor-pointer">
+                <span>Rood vlees (voor weeklimiet)</span>
+            </label>
+        </div>
         
         <button 
             type="submit" 
@@ -168,6 +195,26 @@
                 
                 <form wire:submit.prevent="update" class="flex flex-col gap-2">
                     <select 
+                        wire:model="editCategory" 
+                        id="diary-edit-category"
+                        onchange="toggleDiaryEditRedMeatCheckbox()"
+                        class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
+                        required
+                    >
+                        <option value="">-- Selecteer Categorie --</option>
+                        <option value="groente">Groente</option>
+                        <option value="fruit">Fruit</option>
+                        <option value="koolhydraten">Koolhydraten</option>
+                        <option value="vlees">Vlees</option>
+                        <option value="noten">Noten</option>
+                        <option value="zuivel">Zuivel</option>
+                        <option value="kaas">Kaas</option>
+                        <option value="vet">Vet</option>
+                        <option value="vocht">Vocht</option>
+                    </select>
+                    @error('editCategory') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    
+                    <select 
                         wire:model="editMoment" 
                         class="w-full px-4 py-3 bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg text-gray-300 focus:border-transparent focus:ring-2 focus:ring-blue-600"
                         required
@@ -199,6 +246,13 @@
                         required
                     >
                     
+                    <div class="hidden mb-2" id="diary-edit-redMeatGroup">
+                        <label class="flex items-center gap-2.5 cursor-pointer text-gray-300 text-sm">
+                            <input type="checkbox" wire:model="editIsRedMeat" id="diary-edit-isRedMeat" class="w-auto cursor-pointer">
+                            <span>Rood vlees (voor weeklimiet)</span>
+                        </label>
+                    </div>
+                    
                     <div class="flex gap-2 mt-4">
                         <button 
                             type="submit" 
@@ -219,3 +273,65 @@
         </div>
     @endif
 </div>
+
+<script>
+function toggleDiaryRedMeatCheckbox() {
+    const category = document.getElementById('diary-category')?.value;
+    const redMeatGroup = document.getElementById('diary-redMeatGroup');
+    
+    if (category === 'vlees') {
+        if (redMeatGroup) {
+            redMeatGroup.classList.remove('hidden');
+            redMeatGroup.classList.add('block');
+        }
+    } else {
+        if (redMeatGroup) {
+            redMeatGroup.classList.remove('block');
+            redMeatGroup.classList.add('hidden');
+        }
+        const checkbox = document.getElementById('diary-isRedMeat');
+        if (checkbox) checkbox.checked = false;
+    }
+}
+
+function toggleDiaryEditRedMeatCheckbox() {
+    const category = document.getElementById('diary-edit-category')?.value;
+    const redMeatGroup = document.getElementById('diary-edit-redMeatGroup');
+    
+    if (category === 'vlees') {
+        if (redMeatGroup) {
+            redMeatGroup.classList.remove('hidden');
+            redMeatGroup.classList.add('block');
+        }
+    } else {
+        if (redMeatGroup) {
+            redMeatGroup.classList.remove('block');
+            redMeatGroup.classList.add('hidden');
+        }
+        const checkbox = document.getElementById('diary-edit-isRedMeat');
+        if (checkbox) checkbox.checked = false;
+    }
+}
+
+// Initialize checkbox visibility when editing
+document.addEventListener('livewire:load', function() {
+    Livewire.hook('message.processed', (message, component) => {
+        if (component.fingerprint.name === 'diary.index') {
+            setTimeout(() => {
+                toggleDiaryEditRedMeatCheckbox();
+            }, 100);
+        }
+    });
+});
+
+// Also listen for Livewire updates
+document.addEventListener('livewire:init', () => {
+    Livewire.hook('message.processed', (message, component) => {
+        if (component.fingerprint.name === 'diary.index') {
+            setTimeout(() => {
+                toggleDiaryEditRedMeatCheckbox();
+            }, 100);
+        }
+    });
+});
+</script>

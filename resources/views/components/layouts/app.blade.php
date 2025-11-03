@@ -89,6 +89,11 @@
             class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('nutrition-limits') ? 'active' : '' }}">
             Wijzig nutrition limieten
         </a>
+        <a 
+            href="{{ route('dietist') }}"
+            class="nav-link px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('dietist') ? 'active' : '' }}">
+            Dietist
+        </a>
     </nav>
     
     <main>

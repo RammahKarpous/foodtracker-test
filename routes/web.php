@@ -34,6 +34,10 @@ Route::middleware('auth')->group(function () {
         return view('nutrition-limits');
     })->name('nutrition-limits');
     
+    Route::get('/dietist', function () {
+        return view('dietist');
+    })->name('dietist');
+    
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();

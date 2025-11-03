@@ -10,6 +10,8 @@ class DiaryEntry extends Model
     protected $fillable = [
         'user_id',
         'product_naam',
+        'category',
+        'is_red_meat',
         'moment',
         'gram',
         'kcal',
