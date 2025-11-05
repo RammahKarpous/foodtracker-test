@@ -22,7 +22,9 @@ class Index extends Component
         'noten' => ['name' => 'Ongezouten noten', 'max' => 25, 'color' => '#8e44ad', 'unit' => 'g'],
         'zuivel' => ['name' => 'Zuivelproducten', 'max' => 450, 'color' => '#3498db', 'unit' => 'g'],
         'kaas' => ['name' => 'Kaas', 'max' => 40, 'color' => '#f1c40f', 'unit' => 'g'],
-        'vet' => ['name' => 'Bereidingsvet', 'max' => 15, 'color' => '#95a5a6', 'unit' => 'g'],
+        'bereidingsvet' => ['name' => 'Bereidingsvet', 'max' => 15, 'color' => '#95a5a6', 'unit' => 'g'],
+        'margarine' => ['name' => 'Margarine', 'max' => 15, 'color' => '#7f8c8d', 'unit' => 'g'],
+        'onbekend' => ['name' => 'Onbekend', 'max' => 100, 'color' => '#9e9e9e', 'unit' => 'g'],
         'vocht' => ['name' => 'Vocht', 'max' => 2000, 'color' => '#00bcd4', 'unit' => 'ml'],
     ];
     

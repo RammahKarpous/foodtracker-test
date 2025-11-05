@@ -224,6 +224,10 @@
                     @endfor
             </div>
         </div>
+    
+    <!-- Hidden data elements for JavaScript to read fresh data -->
+    <div id="dietist-daily-data" style="display: none;">@json($this->dailyData)</div>
+    <div id="dietist-overview-data" style="display: none;">@json($this->overviewData)</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -264,29 +268,32 @@
         event.target.classList.remove('bg-black', 'bg-opacity-30', 'border', 'border-white', 'border-opacity-10', 'text-gray-300');
         event.target.classList.add('bg-gradient-to-r', 'from-[#000000]', 'via-[#0A0E1F]', 'to-[#102459]', 'text-white');
 
-        if (tabName === 'overzicht') {
-            setTimeout(() => {
+        // Re-initialize charts when switching tabs
+        setTimeout(() => {
+            if (tabName === 'overzicht') {
                 updateDietistOverviewChart();
-            }, 100);
-        } else if (tabName === 'dagboek') {
-            setTimeout(() => {
+            } else if (tabName === 'dagboek') {
                 updateDietistCategoryCharts();
-            }, 100);
-        }
+            }
+        }, 150);
     }
 
     function updateDietistCategoryCharts() {
+        // Get fresh data from the hidden JSON element
+        const dataElement = document.getElementById('dietist-daily-data');
+        if (!dataElement) return;
+        
+        const dailyData = JSON.parse(dataElement.textContent || '{}');
+        
         @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
-            @php
-                $current = $this->dailyData[$key] ?? 0;
-                $max = $goal['max'];
-            @endphp
-            createDietistCategoryChart('{{ $key }}', 'dietist-chart-{{ $key }}', {{ $current }}, {{ $max }});
+            const current = dailyData['{{ $key }}'] ?? 0;
+            const max = {{ $goal['max'] }};
+            createDietistCategoryChart('{{ $key }}', 'dietist-chart-{{ $key }}', current, max);
         @endforeach
     }
 
     function createDietistCategoryChart(key, canvasId, current, max) {
-        const canvas = document.getElementById(canvasId);
+        let canvas = document.getElementById(canvasId);
         if (!canvas) {
             console.warn('Canvas not found:', canvasId);
             return;
@@ -297,6 +304,11 @@
             delete dietistCategoryCharts[key];
         }
 
+        // Replace canvas with a fresh clone to clear any stale draws
+        const clone = canvas.cloneNode(true);
+        canvas.parentNode.replaceChild(clone, canvas);
+        canvas = clone;
+        canvas.style.borderRadius = '8px';
         const ctx = canvas.getContext('2d');
         const remaining = Math.max(0, max - current);
         
@@ -305,9 +317,9 @@
         const remainingValue = Math.max(remaining, 0);
         const total = currentValue + remainingValue;
         
-        // If both are zero, use a small value to show empty state
-        const data = total > 0 ? [currentValue, remainingValue] : [0.1, max - 0.1];
-        const colors = total > 0 ? ['#4c7fba', '#2c2c2e'] : ['#2c2c2e', '#2c2c2e'];
+        // If both are zero, use visible grays for empty state
+        const data = total > 0 ? [currentValue, remainingValue] : [0.1, Math.max(max - 0.1, 0.1)];
+        const colors = total > 0 ? ['#4c7fba', '#2c2c2e'] : ['#374151', '#1f2937']; // slate-700 + slate-800
 
         try {
             dietistCategoryCharts[key] = new Chart(ctx, {
@@ -317,12 +329,14 @@
                     datasets: [{
                         data: data,
                         backgroundColor: colors,
-                        borderWidth: 0
+                        borderColor: '#9ca3af',
+                        borderWidth: 2.5
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    animation: { duration: 0 },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -342,6 +356,8 @@
                     }
                 }
             });
+            try { dietistCategoryCharts[key].resize(); } catch (e) {}
+            try { dietistCategoryCharts[key].update('none'); } catch (e) {}
         } catch (error) {
             console.error('Error creating chart for', key, ':', error);
         }
@@ -355,18 +371,27 @@
             dietistOverviewChart.destroy();
         }
 
+        // Get fresh data from the hidden JSON element
+        const dataElement = document.getElementById('dietist-overview-data');
+        if (!dataElement) return;
+        
+        const overviewData = JSON.parse(dataElement.textContent || '{}');
+
+        // Replace canvas with a fresh clone to avoid stale renders
+        const clone2 = canvas.cloneNode(true);
+        canvas.parentNode.replaceChild(clone2, canvas);
+        canvas = clone2;
+        canvas.style.borderRadius = '8px';
         const ctx = canvas.getContext('2d');
         const labels = [];
         const values = [];
         const colors = [];
 
         @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
-            @php
-                $current = $this->overviewData[$key] ?? 0;
-                $percentage = ($current / $goal['max'] * 100);
-            @endphp
+            const current = overviewData['{{ $key }}'] ?? 0;
+            const percentage = (current / {{ $goal['max'] }} * 100);
             labels.push('{{ $goal['name'] }}');
-            values.push({{ number_format($percentage, 1) }});
+            values.push(percentage);
             colors.push('{{ $goal['color'] }}');
         @endforeach
 
@@ -377,12 +402,14 @@
                 datasets: [{
                     data: values,
                     backgroundColor: colors,
-                    borderWidth: 0
+                    borderColor: '#9ca3af',
+                    borderWidth: 2.5
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                animation: { duration: 0 },
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -402,38 +429,68 @@
                 }
             }
         });
+        try { dietistOverviewChart.resize(); } catch (e) {}
+        try { dietistOverviewChart.update('none'); } catch (e) {}
     }
 
+    function initializeCharts() {
+        const activeTab = document.querySelector('.dietist-tab-btn.active');
+        if (activeTab) {
+            const tabText = activeTab.textContent.trim();
+            if (tabText === 'Dagboek') {
+                updateDietistCategoryCharts();
+            } else if (tabText === 'Overzicht') {
+                updateDietistOverviewChart();
+            }
+        } else {
+            // Default to Dagboek if no active tab (initial load)
+            updateDietistCategoryCharts();
+        }
+    }
+
+    // Initialize charts on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
-            updateDietistCategoryCharts();
-        }, 200);
+            initializeCharts();
+        }, 300);
     });
 
-    // Update charts when Livewire updates
+    // Update charts when Livewire updates (Livewire 2)
     document.addEventListener('livewire:load', function() {
         setTimeout(() => {
-            updateDietistCategoryCharts();
-        }, 200);
+            initializeCharts();
+        }, 300);
         
         Livewire.hook('message.processed', (message, component) => {
             if (component.fingerprint.name === 'dietist.index') {
+                // Re-initialize charts after any component update
                 setTimeout(() => {
-                    const activeTab = document.querySelector('.dietist-tab-btn.active');
-                    if (activeTab && activeTab.textContent.trim() === 'Dagboek') {
-                        updateDietistCategoryCharts();
-                    } else if (activeTab && activeTab.textContent.trim() === 'Overzicht') {
-                        updateDietistOverviewChart();
-                    }
-                }, 200);
+                    initializeCharts();
+                }, 300);
             }
         });
     });
     
-    // Also listen for Livewire init (for Livewire 3)
+    // Also listen for Livewire init (Livewire 3)
     document.addEventListener('livewire:init', () => {
         setTimeout(() => {
-            updateDietistCategoryCharts();
-        }, 200);
+            initializeCharts();
+        }, 300);
+        
+        Livewire.hook('message.processed', (message, component) => {
+            if (component.fingerprint.name === 'dietist.index') {
+                // Re-initialize charts after any component update
+                setTimeout(() => {
+                    initializeCharts();
+                }, 300);
+            }
+        });
+    });
+    
+    // Additional hook for Livewire updates (covers all cases)
+    document.addEventListener('livewire:update', () => {
+        setTimeout(() => {
+            initializeCharts();
+        }, 300);
     });
 </script>

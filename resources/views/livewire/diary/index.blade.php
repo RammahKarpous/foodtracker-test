@@ -78,7 +78,9 @@
             <option value="noten">Noten</option>
             <option value="zuivel">Zuivel</option>
             <option value="kaas">Kaas</option>
-            <option value="vet">Vet</option>
+            <option value="bereidingsvet">Bereidingsvet</option>
+            <option value="margarine">Margarine</option>
+            <option value="onbekend">Onbekend</option>
             <option value="vocht">Vocht</option>
         </select>
         @error('category') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
@@ -189,7 +191,7 @@
     
     <!-- Edit Modal -->
     @if($editingId)
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;">
             <div class="bg-white bg-opacity-10 backdrop-blur-lg border border-white border-opacity-20 rounded-2xl p-8 shadow-xl max-w-md w-full mx-4" style="max-height: 90vh; overflow-y: auto;">
                 <h2 class="text-2xl text-gray-400 mb-6 text-center">Entry bewerken</h2>
                 
@@ -209,7 +211,9 @@
                         <option value="noten">Noten</option>
                         <option value="zuivel">Zuivel</option>
                         <option value="kaas">Kaas</option>
-                        <option value="vet">Vet</option>
+                        <option value="bereidingsvet">Bereidingsvet</option>
+                        <option value="margarine">Margarine</option>
+                        <option value="onbekend">Onbekend</option>
                         <option value="vocht">Vocht</option>
                     </select>
                     @error('editCategory') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
