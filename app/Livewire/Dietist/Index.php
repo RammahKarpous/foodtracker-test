@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\DiaryEntry;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use ArielMejiaDev\LarapexCharts\LarapexChart;
 
 class Index extends Component
 {
@@ -64,9 +65,11 @@ class Index extends Component
         return $d->copy()->addDays($diff)->startOfDay();
     }
 
-    public function switchTab($tabName)
+    public string $activeTab = 'overzicht';
+
+    public function switchTab(string $tabName): void
     {
-        // This is handled by JavaScript in the view
+        $this->activeTab = $tabName;
     }
 
     public function getDailyDataProperty()
@@ -169,6 +172,20 @@ class Index extends Component
 
     public function render()
     {
-        return view('livewire.dietist.index');
+        // Build donut charts for the Overzicht date
+        $overviewDonuts = [];
+        foreach (self::GOALS as $key => $goal) {
+            $current = $this->overviewData[$key] ?? 0;
+            $remaining = max(0, $goal['max'] - $current);
+
+            $overviewDonuts[$key] = (new LarapexChart)
+                ->setType('donut')
+                ->setLabels(['Gegeten', 'Resterend'])
+                ->setDataset([(float) $current, (float) $remaining])
+                ->setColors(['#4c7fba', '#2c2c2e'])
+                ->setHeight(260);
+        }
+
+        return view('livewire.dietist.index', compact('overviewDonuts'));
     }
 }

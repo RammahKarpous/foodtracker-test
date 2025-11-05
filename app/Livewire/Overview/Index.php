@@ -7,6 +7,7 @@ use App\Models\DiaryEntry;
 use App\Models\NutritionalLimit;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use ArielMejiaDev\LarapexCharts\LarapexChart;
 
 class Index extends Component
 {
@@ -76,6 +77,9 @@ class Index extends Component
 
     public function render()
     {
-        return view('livewire.overview.index');
+        $totals = $this->totals;
+        $limits = $this->limits;
+
+        return view('livewire.overview.index', compact('totals', 'limits'));
     }
 }

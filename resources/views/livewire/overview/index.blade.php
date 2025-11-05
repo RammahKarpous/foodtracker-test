@@ -1,4 +1,4 @@
-<div class="w-full" x-data="chartData()">
+<div class="w-full">
     <div class="flex items-center justify-center gap-4 mb-6">
         <button 
             wire:click="previousDay" 
@@ -17,86 +17,51 @@
         </button>
     </div>
     
-    <div class="flex flex-wrap gap-6 justify-center mb-6">
-        @php
-            $totals = $this->totals;
-            $limits = $this->limits;
-        @endphp
-        
-        <canvas id="chart-kcal" width="200" height="200"></canvas>
-        <canvas id="chart-vet" width="200" height="200"></canvas>
-        <canvas id="chart-verzadigd" width="200" height="200"></canvas>
-        <canvas id="chart-kh" width="200" height="200"></canvas>
-        <canvas id="chart-suiker" width="200" height="200"></canvas>
-        <canvas id="chart-eiwit" width="200" height="200"></canvas>
-    </div>
     
-    <script>
-        function chartData() {
-            return {
-                init() {
-                    this.initCharts();
-                },
-                initCharts() {
+    
+    <h2 class="text-gray-400 text-xl mb-4">Dagelijks Overzicht - Tabel</h2>
+    <div class="w-full overflow-x-auto mb-6">
+        @php
+            $metrics = [
+                ['key' => 'kcal', 'label' => 'Kcal', 'unit' => 'kcal'],
+                ['key' => 'vet', 'label' => 'Vet', 'unit' => 'g'],
+                ['key' => 'verzadigd', 'label' => 'Verzadigd vet', 'unit' => 'g'],
+                ['key' => 'koolhydraten', 'label' => 'Koolhydraten', 'unit' => 'g'],
+                ['key' => 'suiker', 'label' => 'Suiker', 'unit' => 'g'],
+                ['key' => 'eiwit', 'label' => 'Eiwit', 'unit' => 'g'],
+            ];
+        @endphp
+        <table class="w-full border-collapse border-spacing-0 bg-transparent">
+            <thead>
+                <tr>
+                    <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Metric</th>
+                    <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Gegeten</th>
+                    <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Doel</th>
+                    <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Voortgang</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($metrics as $m)
                     @php
-                        $chartData = [
-                            ['id' => 'chart-kcal', 'label' => 'Kcal', 'value' => $totals['kcal'], 'max' => $limits['kcal']],
-                            ['id' => 'chart-vet', 'label' => 'Vet (g)', 'value' => $totals['vet'], 'max' => $limits['vet']],
-                            ['id' => 'chart-verzadigd', 'label' => 'Verzadigd vet (g)', 'value' => $totals['verzadigd'], 'max' => $limits['verzadigd']],
-                            ['id' => 'chart-kh', 'label' => 'Koolhydraten (g)', 'value' => $totals['koolhydraten'], 'max' => $limits['koolhydraten']],
-                            ['id' => 'chart-suiker', 'label' => 'Suiker (g)', 'value' => $totals['suiker'], 'max' => $limits['suiker']],
-                            ['id' => 'chart-eiwit', 'label' => 'Eiwit (g)', 'value' => $totals['eiwit'], 'max' => $limits['eiwit']],
-                        ];
+                        $current = (float)($totals[$m['key']] ?? 0);
+                        $goal = (float)($limits[$m['key']] ?? 0);
+                        $percentage = $goal > 0 ? ($current / $goal * 100) : 0;
+                        $progressClass = $percentage > 110 ? 'danger' : ($percentage > 100 ? 'warning' : '');
+                        $progressColor = $progressClass === 'danger' ? '#e74c3c' : ($progressClass === 'warning' ? '#f39c12' : '#3b82f6');
                     @endphp
-                    const data = @json($chartData);
-                    
-                    data.forEach(item => {
-                        const ctx = document.getElementById(item.id).getContext('2d');
-                        const gegeten = Math.min(item.value, item.max);
-                        const resterend = Math.max(item.max - item.value, 0);
-                        const mainLabel = `${item.label} (${item.value.toFixed(1)}/${item.max})`;
-                        
-                        let backgroundColor;
-                        if (item.value > item.max) {
-                            backgroundColor = ['#c62828', '#444'];
-                        } else if (item.value === 0) {
-                            backgroundColor = ['#000000', '#000000'];
-                        } else {
-                            const gradient = ctx.createLinearGradient(0, 0, 120, 120);
-                            gradient.addColorStop(0, '#0B0D14');
-                            gradient.addColorStop(0.5, '#0D142A');
-                            gradient.addColorStop(1, '#123072');
-                            backgroundColor = [gradient, '#000000'];
-                        }
-                        
-                        new Chart(ctx, {
-                            type: 'pie',
-                            data: {
-                                labels: [mainLabel, 'Resterend'],
-                                datasets: [{
-                                    data: [gegeten, resterend],
-                                    backgroundColor: backgroundColor,
-                                    borderColor: '#606672',
-                                    borderWidth: 2
-                                }]
-                            },
-                            options: {
-                                plugins: {
-                                    legend: {
-                                        display: true,
-                                        position: 'bottom',
-                                        labels: {
-                                            color: '#606672',
-                                            font: { weight: '500', size: 14 }
-                                        }
-                                    }
-                                },
-                                responsive: false
-                            }
-                        });
-                    });
-                }
-            }
-        }
-    </script>
+                    <tr class="border-b border-white border-opacity-8">
+                        <td class="px-2 py-2 text-gray-300 text-xs">{{ $m['label'] }}</td>
+                        <td class="px-2 py-2 text-gray-300 text-xs">{{ number_format($current, 1) }}{{ $m['unit'] }}</td>
+                        <td class="px-2 py-2 text-gray-300 text-xs">{{ number_format($goal, 1) }}{{ $m['unit'] }}</td>
+                        <td class="px-2 py-2 text-xs">
+                            <div class="text-gray-300">{{ number_format($percentage, 1) }}%</div>
+                            <div class="progress-bar w-full h-2 bg-black bg-opacity-30 rounded-lg overflow-hidden mt-1.5">
+                                <div class="progress-fill h-full rounded-lg transition-all duration-300" style="background: {{ $progressColor }}; width: {{ min($percentage, 100) }}%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 </div>
