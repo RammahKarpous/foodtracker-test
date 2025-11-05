@@ -286,9 +286,12 @@
         const dailyData = JSON.parse(dataElement.textContent || '{}');
         
         @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
-            const current = dailyData['{{ $key }}'] ?? 0;
-            const max = {{ $goal['max'] }};
-            createDietistCategoryChart('{{ $key }}', 'dietist-chart-{{ $key }}', current, max);
+            createDietistCategoryChart(
+                '{{ $key }}',
+                'dietist-chart-{{ $key }}',
+                (dailyData['{{ $key }}'] ?? 0),
+                {{ $goal['max'] }}
+            );
         @endforeach
     }
 
@@ -364,7 +367,7 @@
     }
 
     function updateDietistOverviewChart() {
-        const canvas = document.getElementById('dietist-nutritionChart');
+        let canvas = document.getElementById('dietist-nutritionChart');
         if (!canvas) return;
 
         if (dietistOverviewChart) {
@@ -388,10 +391,8 @@
         const colors = [];
 
         @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
-            const current = overviewData['{{ $key }}'] ?? 0;
-            const percentage = (current / {{ $goal['max'] }} * 100);
             labels.push('{{ $goal['name'] }}');
-            values.push(percentage);
+            values.push(((overviewData['{{ $key }}'] ?? 0) / {{ $goal['max'] }}) * 100);
             colors.push('{{ $goal['color'] }}');
         @endforeach
 
@@ -448,24 +449,40 @@
         }
     }
 
+    // Ensure Chart is loaded, then initialize charts
+    function initializeChartsWhenReady() {
+        const attempt = () => {
+            if (window.Chart) {
+                setTimeout(() => initializeCharts(), 0);
+            } else {
+                setTimeout(attempt, 100);
+            }
+        };
+        attempt();
+    }
+
     // Initialize charts on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
-            initializeCharts();
+            initializeChartsWhenReady();
         }, 300);
     });
+
+    // Also trigger an immediate initialization in case this script is injected
+    // after DOMContentLoaded/livewire:init have already fired
+    initializeChartsWhenReady();
 
     // Update charts when Livewire updates (Livewire 2)
     document.addEventListener('livewire:load', function() {
         setTimeout(() => {
-            initializeCharts();
+            initializeChartsWhenReady();
         }, 300);
         
         Livewire.hook('message.processed', (message, component) => {
             if (component.fingerprint.name === 'dietist.index') {
                 // Re-initialize charts after any component update
                 setTimeout(() => {
-                    initializeCharts();
+                    initializeChartsWhenReady();
                 }, 300);
             }
         });
@@ -474,14 +491,14 @@
     // Also listen for Livewire init (Livewire 3)
     document.addEventListener('livewire:init', () => {
         setTimeout(() => {
-            initializeCharts();
+            initializeChartsWhenReady();
         }, 300);
         
         Livewire.hook('message.processed', (message, component) => {
             if (component.fingerprint.name === 'dietist.index') {
                 // Re-initialize charts after any component update
                 setTimeout(() => {
-                    initializeCharts();
+                    initializeChartsWhenReady();
                 }, 300);
             }
         });
@@ -490,7 +507,7 @@
     // Additional hook for Livewire updates (covers all cases)
     document.addEventListener('livewire:update', () => {
         setTimeout(() => {
-            initializeCharts();
+            initializeChartsWhenReady();
         }, 300);
     });
 </script>
