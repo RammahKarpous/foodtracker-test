@@ -177,12 +177,12 @@
                 @foreach($summary as $moment => $totals)
                     <tr class="border-b border-white border-opacity-8">
                         <td class="px-2 py-2 text-gray-300 text-xs font-semibold">{{ $moment }}</td>
-                        <td class="px-2 py-2 text-xs {{ $totals['kcal'] > $limits['kcal'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['kcal'], 1) }}</td>
-                        <td class="px-2 py-2 text-xs {{ $totals['vet'] > $limits['vet'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['vet'], 1) }}</td>
-                        <td class="px-2 py-2 text-xs {{ $totals['verzadigd'] > $limits['verzadigd'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['verzadigd'], 1) }}</td>
-                        <td class="px-2 py-2 text-xs {{ $totals['koolhydraten'] > $limits['koolhydraten'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['koolhydraten'], 1) }}</td>
-                        <td class="px-2 py-2 text-xs {{ $totals['suiker'] > $limits['suiker'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['suiker'], 1) }}</td>
-                        <td class="px-2 py-2 text-xs {{ $totals['eiwit'] > $limits['eiwit'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['eiwit'], 1) }}</td>
+                        <td class="px-2 py-2 text-xs {{ $totals['kcal'] > $limits['kcal'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['kcal'], 2) }}</td>
+                        <td class="px-2 py-2 text-xs {{ $totals['vet'] > $limits['vet'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['vet'], 2) }}</td>
+                        <td class="px-2 py-2 text-xs {{ $totals['verzadigd'] > $limits['verzadigd'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['verzadigd'], 2) }}</td>
+                        <td class="px-2 py-2 text-xs {{ $totals['koolhydraten'] > $limits['koolhydraten'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['koolhydraten'], 2) }}</td>
+                        <td class="px-2 py-2 text-xs {{ $totals['suiker'] > $limits['suiker'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['suiker'], 2) }}</td>
+                        <td class="px-2 py-2 text-xs {{ $totals['eiwit'] > $limits['eiwit'] ? 'text-red-600 font-bold' : 'text-gray-300' }}">{{ number_format($totals['eiwit'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>

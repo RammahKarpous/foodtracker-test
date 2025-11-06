@@ -139,12 +139,12 @@ class Index extends Component
             'is_red_meat' => $this->category === 'vlees' && $this->isRedMeat,
             'moment' => $this->moment,
             'gram' => $gram,
-            'kcal' => round($product->kcal * $gram / 100, 1),
-            'vet' => round($product->vet * $gram / 100, 1),
-            'verzadigd' => round($product->verzadigd * $gram / 100, 1),
-            'koolhydraten' => round($product->koolhydraten * $gram / 100, 1),
-            'suiker' => round($product->suiker * $gram / 100, 1),
-            'eiwit' => round($product->eiwit * $gram / 100, 1),
+            'kcal' => round($product->kcal * $gram / 100, 2),
+            'vet' => round($product->vet * $gram / 100, 2),
+            'verzadigd' => round($product->verzadigd * $gram / 100, 2),
+            'koolhydraten' => round($product->koolhydraten * $gram / 100, 2),
+            'suiker' => round($product->suiker * $gram / 100, 2),
+            'eiwit' => round($product->eiwit * $gram / 100, 2),
             'datum' => $this->selectedDate,
         ];
         
@@ -197,12 +197,12 @@ class Index extends Component
             'is_red_meat' => $this->editCategory === 'vlees' && $this->editIsRedMeat,
             'moment' => $this->editMoment,
             'gram' => $gram,
-            'kcal' => round($product->kcal * $gram / 100, 1),
-            'vet' => round($product->vet * $gram / 100, 1),
-            'verzadigd' => round($product->verzadigd * $gram / 100, 1),
-            'koolhydraten' => round($product->koolhydraten * $gram / 100, 1),
-            'suiker' => round($product->suiker * $gram / 100, 1),
-            'eiwit' => round($product->eiwit * $gram / 100, 1),
+            'kcal' => round($product->kcal * $gram / 100, 2),
+            'vet' => round($product->vet * $gram / 100, 2),
+            'verzadigd' => round($product->verzadigd * $gram / 100, 2),
+            'koolhydraten' => round($product->koolhydraten * $gram / 100, 2),
+            'suiker' => round($product->suiker * $gram / 100, 2),
+            'eiwit' => round($product->eiwit * $gram / 100, 2),
         ];
         
         DiaryEntry::where('id', $this->editingId)->update($data);
