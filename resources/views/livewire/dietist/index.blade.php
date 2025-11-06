@@ -36,10 +36,10 @@
                 <table class="w-full border-collapse border-spacing-0 bg-transparent">
                     <thead>
                         <tr>
-                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Categorie</th>
-                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Gegeten</th>
-                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Doel</th>
-                            <th class="px-2 py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Voortgang</th>
+                            <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Categorie</th>
+                            <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Gegeten</th>
+                            <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Doel</th>
+                            <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Voortgang</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -138,6 +138,33 @@
             </div>
         </div>
     
+    <!-- Overzicht - Gegeten lijst -->
+    @if($activeTab === 'overzicht')
+        <div class="mt-6">
+            <h3 class="text-gray-300 text-base font-medium mb-3">Wat heb ik vandaag gegeten</h3>
+            @php $grouped = $this->overviewEntriesByCategory; @endphp
+            @php $hasAny = false; @endphp
+            @foreach(\App\Livewire\Dietist\Index::GOALS as $key => $goal)
+                @php $items = $grouped[$key] ?? []; $hasAny = $hasAny || count($items) > 0; @endphp
+                @if(count($items) > 0)
+                    <div class="category-group bg-black bg-opacity-30 border border-white border-opacity-10 rounded-lg p-4 mb-4">
+                        <h4 class="text-gray-300 text-sm font-semibold mb-2">{{ $goal['name'] }}</h4>
+                        <div class="flex flex-col gap-2">
+                            @foreach($items as $item)
+                                <div class="flex justify-between items-center py-2 px-3 bg-black bg-opacity-20 rounded-lg transition-all duration-200 hover:bg-opacity-30">
+                                    <span class="text-gray-300 text-sm font-normal">{{ $item['name'] }}</span>
+                                    <span class="text-blue-600 text-sm font-medium whitespace-nowrap">{{ number_format($item['grams'], 0) }}{{ $item['unit'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+            @if(!$hasAny)
+                <div class="text-gray-400 italic py-3">Nog geen producten toegevoegd voor deze datum.</div>
+            @endif
+        </div>
+    @endif
     
 </div>
 

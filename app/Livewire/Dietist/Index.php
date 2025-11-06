@@ -133,6 +133,45 @@ class Index extends Component
         return $weekData;
     }
 
+    public function getOverviewEntriesProperty()
+    {
+        $entries = DiaryEntry::where('user_id', Auth::id())
+            ->whereDate('datum', $this->overviewDate)
+            ->whereNotNull('category')
+            ->orderByDesc('id')
+            ->get();
+
+        return $entries->map(function ($entry) {
+            $categoryKey = $entry->category;
+            $goal = self::GOALS[$categoryKey] ?? null;
+            return [
+                'name' => $entry->product_naam,
+                'grams' => $entry->gram,
+                'unit' => $goal['unit'] ?? 'g',
+                'category' => $goal['name'] ?? ucfirst($categoryKey ?? 'Onbekend'),
+                'category_key' => $categoryKey,
+            ];
+        })->values();
+    }
+
+    public function getOverviewEntriesByCategoryProperty(): array
+    {
+        $grouped = [];
+        foreach (array_keys(self::GOALS) as $key) {
+            $grouped[$key] = [];
+        }
+
+        foreach ($this->overviewEntries as $item) {
+            $key = $item['category_key'] ?? 'onbekend';
+            if (! array_key_exists($key, $grouped)) {
+                $grouped[$key] = [];
+            }
+            $grouped[$key][] = $item;
+        }
+
+        return $grouped;
+    }
+
     public function getWeeklyRedMeatTotalProperty()
     {
         $monday = Carbon::parse($this->currentWeekMonday);

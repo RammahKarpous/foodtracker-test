@@ -34,7 +34,7 @@
         <table class="w-full border-collapse border-spacing-0 bg-transparent">
             <thead>
                 <tr>
-                    <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Metric</th>
+                    <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Voedingswaarde</th>
                     <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Gegeten</th>
                     <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Doel</th>
                     <th class="px-2 text-left py-2 text-gray-400 font-semibold border-b-2 border-white border-opacity-10 text-xs">Voortgang</th>

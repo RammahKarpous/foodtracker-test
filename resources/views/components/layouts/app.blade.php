@@ -69,7 +69,7 @@
             </button>
         </form>
     </div>
-    <nav class="flex justify-center overflow-x-auto gap-2 my-5">
+    <nav class="flex justify-center overflow-x-auto gap-5 my-5">
         <a 
             href="{{ route('products') }}"
             class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('products') ? 'active' : '' }}">
@@ -86,14 +86,14 @@
             Overzicht
         </a>
         <a 
-            href="{{ route('nutrition-limits') }}"
-            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('nutrition-limits') ? 'active' : '' }}">
-            Wijzig nutrition limieten
-        </a>
-        <a 
             href="{{ route('dietist') }}"
             class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('dietist') ? 'active' : '' }}">
             Dietist
+        </a>
+        <a 
+            href="{{ route('nutrition-limits') }}"
+            class="nav-link whitespace-nowrap px-5 py-3 bg-gradient-to-r from-[#0B0D14] via-[#0D142A] to-[#123072] text-white rounded-lg cursor-pointer transition filter brightness-100 {{ request()->routeIs('nutrition-limits') ? 'active' : '' }}">
+            Wijzig nutrition limieten
         </a>
     </nav>
     
