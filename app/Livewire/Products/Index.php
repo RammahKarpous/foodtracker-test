@@ -5,6 +5,7 @@ namespace App\Livewire\Products;
 use Livewire\Component;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class Index extends Component
 {
@@ -70,6 +71,51 @@ class Index extends Component
         
         $this->reset('naam', 'kcal', 'vet', 'verzadigd', 'koolhydraten', 'suiker', 'eiwit');
         $this->dispatch('product-added');
+    }
+
+    public function lookupBarcode($barcode)
+    {
+        $barcode = preg_replace('/[^0-9]/', '', (string) $barcode);
+
+        if ($barcode === '') {
+            $this->dispatch('scan-error', message: 'Ongeldige barcode.');
+            return;
+        }
+
+        try {
+            $response = Http::timeout(10)->get("https://world.openfoodfacts.org/api/v2/product/{$barcode}.json");
+        } catch (\Throwable $e) {
+            $this->dispatch('scan-error', message: 'Kon geen verbinding maken met Open Food Facts.');
+            return;
+        }
+
+        if (!$response->successful() || $response->json('status') !== 1) {
+            $this->dispatch('scan-error', message: "Geen product gevonden voor barcode {$barcode}.");
+            return;
+        }
+
+        $product = $response->json('product', []);
+        $nutriments = $product['nutriments'] ?? [];
+
+        $kcal = $nutriments['energy-kcal_100g'] ?? null;
+        if ($kcal === null && isset($nutriments['energy_100g'])) {
+            $kcal = $nutriments['energy_100g'] / 4.184;
+        }
+
+        $this->naam = $product['product_name'] ?: $this->naam;
+        $this->kcal = $this->formatNutrient($kcal);
+        $this->vet = $this->formatNutrient($nutriments['fat_100g'] ?? null);
+        $this->verzadigd = $this->formatNutrient($nutriments['saturated-fat_100g'] ?? null);
+        $this->koolhydraten = $this->formatNutrient($nutriments['carbohydrates_100g'] ?? null);
+        $this->suiker = $this->formatNutrient($nutriments['sugars_100g'] ?? null);
+        $this->eiwit = $this->formatNutrient($nutriments['proteins_100g'] ?? null);
+
+        session()->flash('message', 'Productgegevens opgehaald van Open Food Facts. Controleer en sla op.');
+    }
+
+    private function formatNutrient($value): string
+    {
+        return $value !== null ? number_format((float) $value, 2, '.', '') : '0.00';
     }
 
     public function edit($id)
