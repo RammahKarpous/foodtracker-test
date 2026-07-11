@@ -268,8 +268,10 @@ function barcodeScanner() {
         open: false,
         scanner: null,
         scanning: false,
+        codeHandled: false,
         manualCode: '',
         error: '',
+        busy: Promise.resolve(),
         init() {
             Livewire.on('scan-error', (event) => {
                 this.error = event.message ?? '';
@@ -279,24 +281,31 @@ function barcodeScanner() {
         openScanner() {
             this.error = '';
             this.manualCode = '';
+            this.codeHandled = false;
             this.open = true;
-            this.$nextTick(() => {
-                this.scanner = new Html5Qrcode('barcode-reader');
-                this.scanner.start(
+            this.busy = this.busy.then(() => new Promise((resolve) => {
+                this.$nextTick(() => this.startScanner().finally(resolve));
+            }));
+        },
+        async startScanner() {
+            this.scanner = new Html5Qrcode('barcode-reader');
+            try {
+                await this.scanner.start(
                     { facingMode: 'environment' },
                     { fps: 10, qrbox: { width: 250, height: 150 } },
                     (decodedText) => this.handleCode(decodedText),
                     () => {}
-                ).then(() => {
-                    this.scanning = true;
-                }).catch(() => {
-                    this.error = 'Camera kon niet worden gestart. Voer de barcode handmatig in.';
-                });
-            });
+                );
+                this.scanning = true;
+            } catch (e) {
+                this.error = 'Camera kon niet worden gestart. Voer de barcode handmatig in.';
+            }
         },
         handleCode(code) {
-            this.stopScanner();
+            if (this.codeHandled) return;
+            this.codeHandled = true;
             this.open = false;
+            this.busy = this.busy.then(() => this.stopScanner());
             this.$wire.lookupBarcode(code);
         },
         submitManual() {
@@ -304,18 +313,23 @@ function barcodeScanner() {
                 this.handleCode(this.manualCode.trim());
             }
         },
-        stopScanner() {
-            if (this.scanner && this.scanning) {
-                try {
-                    this.scanner.stop().then(() => this.scanner.clear()).catch(() => {});
-                } catch (e) {}
-            }
+        async stopScanner() {
+            if (!this.scanner) return;
+            const scanner = this.scanner;
+            const wasScanning = this.scanning;
             this.scanner = null;
             this.scanning = false;
+            if (wasScanning) {
+                try {
+                    await scanner.stop();
+                    await scanner.clear();
+                } catch (e) {}
+            }
         },
         closeScanner() {
-            this.stopScanner();
             this.open = false;
+            this.codeHandled = true;
+            this.busy = this.busy.then(() => this.stopScanner());
         },
     }
 }
