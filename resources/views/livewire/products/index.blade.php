@@ -80,6 +80,7 @@
     </form>
 
     <!-- Barcode Scanner Modal -->
+    <template x-teleport="body">
     <div x-show="open" x-cloak class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999]" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;">
         <div class="bg-black border border-white border-opacity-20 rounded-2xl p-6 shadow-xl max-w-md w-full mx-4">
             <h2 class="text-xl text-gray-400 mb-4 text-center">Barcode scannen</h2>
@@ -106,6 +107,7 @@
             </button>
         </div>
     </div>
+    </template>
     </div>
 
     <div class="w-full overflow-x-auto mb-4">
